@@ -14,6 +14,7 @@ define([
         './GeographicTilingScheme',
         './HeightmapTerrainData',
         './IndexDatatype',
+        './joinUrls',
         './loadArrayBuffer',
         './loadJson',
         './QuantizedMeshTerrainData',
@@ -35,6 +36,7 @@ define([
         Event,
         GeographicTilingScheme,
         HeightmapTerrainData,
+        joinUrls,
         IndexDatatype,
         loadArrayBuffer,
         loadJson,
@@ -142,7 +144,7 @@ define([
 
         this._ready = false;
 
-        var metadataUrl = this._url + 'layer.json';
+        var metadataUrl = joinUrls(this._url + 'layer.json');
         if (defined(this._proxy)) {
             metadataUrl = this._proxy.getURL(metadataUrl);
         }
@@ -186,7 +188,7 @@ define([
 
             that._tileUrlTemplates = data.tiles;
             for (var i = 0; i < that._tileUrlTemplates.length; ++i) {
-                that._tileUrlTemplates[i] = new Uri(that._tileUrlTemplates[i]).resolve(baseUri).toString().replace('{version}', data.version);
+                that._tileUrlTemplates[i] = joinUrls(baseUri, that._tileUrlTemplates[i]).toString().replace('{version}', data.version);
             }
 
             that._availableTiles = data.available;
