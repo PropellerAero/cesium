@@ -96,7 +96,7 @@ define([
         }
         //>>includeEnd('debug');
 
-        var url = appendForwardSlash(options.url);
+        var url = options.url;
 
         this._url = url;
         this._ready = false;

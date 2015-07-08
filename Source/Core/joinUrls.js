@@ -1,37 +1,53 @@
 /*global define*/
-define(['../ThirdParty/when'],
+define(['../ThirdParty/Uri'],
     function(URI) {
     "use strict";
 
     /**
-     * Function for joining URLs. Improves upon URI.resolve() by combining the query
-     * strings from both base and appendage URLs. This is useful when the base URL is
-     * presigned and needs a path appeneded to it.
-     * @param {String} first The base URL.
-     * @param {String} second The URL path to join to the base URL.
-     * @private
+     * Function for joining URLs in a manner that is aware of query strings and fragments.
+     * This is useful when the base URL has a query string that needs to be maintained
+     * (e.g. a presigned base URL).
+     * @param {String|URI} first The base URL.
+     * @param {String|URI} second The URL path to join to the base URL.
+     * @param {Boolean} [appendSlash=true] The boolean determining whether there should be a forward slash between first and second.
      */
-    var joinUrls = function (first, second) {
+    var joinUrls = function(first, second, appendSlash) {
 
-        if (!first instanceof URI) {
-            first = URI(first);
+        appendSlash = typeof addSlash !== 'undefined' ? appendSlash : true;
+
+        if (!(first instanceof URI)) {
+            first = new URI(first);
         }
 
-        if (!second instanceof URI) {
-            second = URI(second);
+        if (!(second instanceof URI)) {
+            second = new URI(second);
         }
 
-        if(first.query && second.query) {
-            second.query += '&' + first.query;
-        } else if (first.query) {
-            second.query = first.query;
+        var url = '';
+        if (first.scheme) {url += first.scheme + ':';}
+        if (first.authority) {url += '//' + first.authority;}
+
+        if (appendSlash) {
+            url += first.path.replace(/\/?$/, '/') + second.path.replace(/^\/?/g, '');
+        } else {
+            url += first.path + second.path;
         }
 
-        if(first.fragment && !second.query) {
-            second.fragment = first.fragment;
+        if (first.query && second.query) {
+            url += '?' + first.query + '&' + second.query;
+        } else if (first.query && !second.query) {
+            url += '?' + first.query;
+        } else if (!first.query && second.query) {
+            url += '?' + second.query;
         }
 
-        return second.resolve(first).toString();
+        if (first.fragment && !second.fragment) {
+            url += '#' + first.fragment;
+        } else if (second.fragment) {
+            url += '#' + second.fragment;
+        }
+
+        return url;
     };
 
     return joinUrls;
