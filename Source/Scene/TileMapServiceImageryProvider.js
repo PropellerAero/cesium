@@ -257,7 +257,7 @@ define([
         }
 
         function requestMetadata() {
-            var resourceUrl = joinUrls(url + 'tilemapresource.xml');
+            var resourceUrl = joinUrls(url, 'tilemapresource.xml');
             var proxy = that._proxy;
             if (defined(proxy)) {
                 resourceUrl = proxy.getURL(resourceUrl);
