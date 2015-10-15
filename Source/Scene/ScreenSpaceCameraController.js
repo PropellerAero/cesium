@@ -155,7 +155,7 @@ define([
          * @type {Number}
          * @default 20.0
          */
-        this.minimumZoomDistance = 20.0;
+        this.minimumZoomDistance = 1.0;
         /**
          * The maximum magnitude, in meters, of the camera position when zooming. Defaults to positive infinity.
          * @type {Number}
@@ -206,10 +206,16 @@ define([
          * @default [{@link CameraEventType.MIDDLE_DRAG}, {@link CameraEventType.PINCH}, {
          *     eventType : {@link CameraEventType.LEFT_DRAG},
          *     modifier : {@link KeyboardEventModifier.CTRL}
+         * }, {
+         *     eventType : {@link CameraEventType.RIGHT_DRAG},
+         *     modifier : {@link KeyboardEventModifier.CTRL}
          * }]
          */
         this.tiltEventTypes = [CameraEventType.MIDDLE_DRAG, CameraEventType.PINCH, {
             eventType : CameraEventType.LEFT_DRAG,
+            modifier : KeyboardEventModifier.CTRL
+        }, {
+            eventType : CameraEventType.RIGHT_DRAG,
             modifier : KeyboardEventModifier.CTRL
         }];
         /**
@@ -459,7 +465,11 @@ define([
         var camera = scene.camera;
         var mode = scene.mode;
 
-        var pickedPosition = mode !== SceneMode.SCENE2D ? pickGlobe(object, startPosition, scratchPickCartesian) : camera.getPickRay(startPosition, scratchZoomPickRay).origin;
+        var pickedPosition;
+        if (defined(object._globe)) {
+            pickedPosition = mode !== SceneMode.SCENE2D ? pickGlobe(object, startPosition, scratchPickCartesian) : camera.getPickRay(startPosition, scratchZoomPickRay).origin;
+        }
+
         if (!defined(pickedPosition)) {
             camera.zoomIn(distance);
             return;
@@ -505,12 +515,16 @@ define([
                     if (defined(centerPosition)) {
                         var positionNormal = Cartesian3.normalize(centerPosition, scratchPositionNormal);
                         var pickedNormal = Cartesian3.normalize(object._zoomWorldPosition, scratchPickNormal);
-                        var angle = CesiumMath.acosClamped(Cartesian3.dot(pickedNormal, positionNormal));
-                        var axis = Cartesian3.cross(pickedNormal, positionNormal, scratchZoomAxis);
+                        var dotProduct = Cartesian3.dot(pickedNormal, positionNormal);
 
-                        var denom = Math.abs(angle) > CesiumMath.toRadians(20.0) ? camera.positionCartographic.height * 0.75 : camera.positionCartographic.height - distance;
-                        var scalar = distance / denom;
-                        camera.rotate(axis, angle * scalar);
+                        if (dotProduct > 0.0) {
+                            var angle = CesiumMath.acosClamped(dotProduct);
+                            var axis = Cartesian3.cross(pickedNormal, positionNormal, scratchZoomAxis);
+
+                            var denom = Math.abs(angle) > CesiumMath.toRadians(20.0) ? camera.positionCartographic.height * 0.75 : camera.positionCartographic.height - distance;
+                            var scalar = distance / denom;
+                            camera.rotate(axis, angle * scalar);
+                        }
                     } else {
                         zoomOnVector = true;
                     }

@@ -15,8 +15,11 @@ define([
         '../Core/IndexDatatype',
         '../Core/Math',
         '../Core/Matrix4',
+        '../Renderer/Buffer',
         '../Renderer/BufferUsage',
         '../Renderer/DrawCommand',
+        '../Renderer/RenderState',
+        '../Renderer/ShaderProgram',
         '../Renderer/ShaderSource',
         '../Renderer/VertexArrayFacade',
         '../Shaders/BillboardCollectionFS',
@@ -43,8 +46,11 @@ define([
         IndexDatatype,
         CesiumMath,
         Matrix4,
+        Buffer,
         BufferUsage,
         DrawCommand,
+        RenderState,
+        ShaderProgram,
         ShaderSource,
         VertexArrayFacade,
         BillboardCollectionFS,
@@ -78,7 +84,7 @@ define([
         positionLowAndRotation : 1,
         compressedAttribute0 : 2,        // pixel offset, translate, horizontal origin, vertical origin, show, texture coordinates, direction
         compressedAttribute1 : 3,        // aligned axis, translucency by distance, image width
-        compressedAttribute2 : 4,        // image height, color, pick color, 2 bytes free
+        compressedAttribute2 : 4,        // image height, color, pick color, 15 bits free
         eyeOffset : 5,
         scaleByDistance : 6,
         pixelOffsetScaleByDistance : 7
@@ -176,6 +182,8 @@ define([
         this._maxScale = 1.0;
         this._maxPixelOffset = 0.0;
         this._allHorizontalCenter = true;
+        this._allVerticalCenter = true;
+        this._allSizedInMeters = true;
 
         this._baseVolume = new BoundingSphere();
         this._baseVolumeWC = new BoundingSphere();
@@ -542,7 +550,12 @@ define([
 
         // PERFORMANCE_IDEA:  Should we reference count billboard collections, and eventually delete this?
         // Is this too much memory to allocate up front?  Should we dynamically grow it?
-        indexBuffer = context.createIndexBuffer(indices, BufferUsage.STATIC_DRAW, IndexDatatype.UNSIGNED_SHORT);
+        indexBuffer = Buffer.createIndexBuffer({
+            context : context,
+            typedArray : indices,
+            usage : BufferUsage.STATIC_DRAW,
+            indexDatatype : IndexDatatype.UNSIGNED_SHORT
+        });
         indexBuffer.vertexArrayDestroyable = false;
         context.cache.billboardCollection_indexBuffer = indexBuffer;
         return indexBuffer;
@@ -691,6 +704,7 @@ define([
         }
 
         billboardCollection._allHorizontalCenter = billboardCollection._allHorizontalCenter && horizontalOrigin === HorizontalOrigin.CENTER;
+        billboardCollection._allVerticalCenter = billboardCollection._allVerticalCenter && verticalOrigin === HorizontalOrigin.CENTER;
 
         var bottomLeftX = 0;
         var bottomLeftY = 0;
@@ -819,6 +833,9 @@ define([
 
         var color = billboard.color;
         var pickColor = billboard.getPickId(context).color;
+        var sizeInMeters = billboard.sizeInMeters ? 1.0 : 0.0;
+
+        billboardCollection._allSizedInMeters = billboardCollection._allSizedInMeters && sizeInMeters === 1.0;
 
         var height = 0;
         var index = billboard._imageIndex;
@@ -848,7 +865,7 @@ define([
         blue = Color.floatToByte(pickColor.blue);
         var compressed1 = red * LEFT_SHIFT16 + green * LEFT_SHIFT8 + blue;
 
-        var compressed2 = Color.floatToByte(color.alpha) * LEFT_SHIFT8 + Color.floatToByte(pickColor.alpha);
+        var compressed2 = Color.floatToByte(color.alpha) * LEFT_SHIFT16 + Color.floatToByte(pickColor.alpha) * LEFT_SHIFT8 + sizeInMeters;
 
         var writer = vafWriters[attributeLocations.compressedAttribute2];
         writer(i + 0, compressed0, compressed1, compressed2, imageHeight);
@@ -995,20 +1012,23 @@ define([
     var scratchToCenter = new Cartesian3();
     var scratchProj = new Cartesian3();
     function updateBoundingVolume(collection, context, frameState, boundingVolume) {
-        var camera = frameState.camera;
-        var frustum = camera.frustum;
+        var pixelScale = 1.0;
+        if (!collection._allSizedInMeters || collection._maxPixelOffset !== 0.0) {
+            var camera = frameState.camera;
+            var frustum = camera.frustum;
 
-        var toCenter = Cartesian3.subtract(camera.positionWC, boundingVolume.center, scratchToCenter);
-        var proj = Cartesian3.multiplyByScalar(camera.directionWC, Cartesian3.dot(toCenter, camera.directionWC), scratchProj);
-        var distance = Math.max(0.0, Cartesian3.magnitude(proj) - boundingVolume.radius);
+            var toCenter = Cartesian3.subtract(camera.positionWC, boundingVolume.center, scratchToCenter);
+            var proj = Cartesian3.multiplyByScalar(camera.directionWC, Cartesian3.dot(toCenter, camera.directionWC), scratchProj);
+            var distance = Math.max(0.0, Cartesian3.magnitude(proj) - boundingVolume.radius);
 
-        scratchDrawingBufferDimensions.x = context.drawingBufferWidth;
-        scratchDrawingBufferDimensions.y = context.drawingBufferHeight;
-        var pixelSize = frustum.getPixelSize(scratchDrawingBufferDimensions, distance);
-        var pixelScale = Math.max(pixelSize.x, pixelSize.y);
+            scratchDrawingBufferDimensions.x = context.drawingBufferWidth;
+            scratchDrawingBufferDimensions.y = context.drawingBufferHeight;
+            var pixelSize = frustum.getPixelSize(scratchDrawingBufferDimensions, distance);
+            pixelScale = Math.max(pixelSize.x, pixelSize.y);
+        }
 
         var size = pixelScale * collection._maxScale * collection._maxSize * 2.0;
-        if (collection._allHorizontalCenter) {
+        if (collection._allHorizontalCenter && collection._allVerticalCenter ) {
             size *= 0.5;
         }
 
@@ -1201,7 +1221,7 @@ define([
             var colorList = this._colorCommands;
 
             if (!defined(this._rs)) {
-                this._rs = context.createRenderState({
+                this._rs = RenderState.fromCache({
                     depthTest : {
                         enabled : true
                     },
@@ -1238,7 +1258,14 @@ define([
                     vs.defines.push('CLAMPED_TO_GROUND');
                 }
 
-                this._sp = context.replaceShaderProgram(this._sp, vs, BillboardCollectionFS, attributeLocations);
+                this._sp = ShaderProgram.replaceCache({
+                    context : context,
+                    shaderProgram : this._sp,
+                    vertexShaderSource : vs,
+                    fragmentShaderSource : BillboardCollectionFS,
+                    attributeLocations : attributeLocations
+                });
+
                 this._compiledShaderRotation = this._shaderRotation;
                 this._compiledShaderAlignedAxis = this._shaderAlignedAxis;
                 this._compiledShaderScaleByDistance = this._shaderScaleByDistance;
@@ -1311,7 +1338,13 @@ define([
                     sources : [BillboardCollectionFS]
                 });
 
-                this._spPick = context.replaceShaderProgram(this._spPick, vs, fs, attributeLocations);
+                this._spPick = ShaderProgram.replaceCache({
+                    context : context,
+                    shaderProgram : this._spPick,
+                    vertexShaderSource : vs,
+                    fragmentShaderSource : fs,
+                    attributeLocations : attributeLocations
+                });
                 this._compiledShaderRotationPick = this._shaderRotation;
                 this._compiledShaderAlignedAxisPick = this._shaderAlignedAxis;
                 this._compiledShaderScaleByDistancePick = this._shaderScaleByDistance;

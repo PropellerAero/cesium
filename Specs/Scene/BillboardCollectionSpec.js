@@ -6,10 +6,12 @@ defineSuite([
         'Core/Cartesian2',
         'Core/Cartesian3',
         'Core/Color',
+        'Core/defined',
         'Core/Ellipsoid',
         'Core/loadImage',
         'Core/Math',
         'Core/NearFarScalar',
+        'Renderer/ContextLimits',
         'Scene/HeightReference',
         'Scene/HorizontalOrigin',
         'Scene/OrthographicFrustum',
@@ -25,10 +27,12 @@ defineSuite([
         Cartesian2,
         Cartesian3,
         Color,
+        defined,
         Ellipsoid,
         loadImage,
         CesiumMath,
         NearFarScalar,
+        ContextLimits,
         HeightReference,
         HorizontalOrigin,
         OrthographicFrustum,
@@ -55,7 +59,7 @@ defineSuite([
         scene = createScene();
         camera = scene.camera;
 
-        heightReferenceSupported = scene._globeDepth.supported && scene.context.maximumVertexTextureImageUnits > 0;
+        heightReferenceSupported = defined(scene._globeDepth) && scene._globeDepth.supported && ContextLimits.maximumVertexTextureImageUnits > 0;
 
         return when.join(
             loadImage('./Data/Images/Green.png').then(function(result) {
@@ -122,6 +126,7 @@ defineSuite([
         expect(b.height).not.toBeDefined();
         expect(b.id).not.toBeDefined();
         expect(b.heightReference).toEqual(HeightReference.NONE);
+        expect(b.sizeInMeters).toEqual(false);
     });
 
     it('can add and remove before first update.', function() {
@@ -153,6 +158,7 @@ defineSuite([
             pixelOffsetScaleByDistance : new NearFarScalar(1.0, 1.0, 1.0e6, 0.0),
             width : 300.0,
             height : 200.0,
+            sizeInMeters : true,
             id : 'id'
         });
 
@@ -175,6 +181,7 @@ defineSuite([
         expect(b.pixelOffsetScaleByDistance).toEqual(new NearFarScalar(1.0, 1.0, 1.0e6, 0.0));
         expect(b.width).toEqual(300.0);
         expect(b.height).toEqual(200.0);
+        expect(b.sizeInMeters).toEqual(true);
         expect(b.id).toEqual('id');
     });
 
@@ -196,6 +203,7 @@ defineSuite([
         b.scaleByDistance = new NearFarScalar(1.0e6, 3.0, 1.0e8, 0.0);
         b.translucencyByDistance = new NearFarScalar(1.0e6, 1.0, 1.0e8, 0.0);
         b.pixelOffsetScaleByDistance = new NearFarScalar(1.0e6, 3.0, 1.0e8, 0.0);
+        b.sizeInMeters = true;
 
         expect(b.show).toEqual(false);
         expect(b.position).toEqual(new Cartesian3(1.0, 2.0, 3.0));
@@ -216,10 +224,27 @@ defineSuite([
         expect(b.pixelOffsetScaleByDistance).toEqual(new NearFarScalar(1.0e6, 3.0, 1.0e8, 0.0));
         expect(b.width).toEqual(300.0);
         expect(b.height).toEqual(200.0);
+        expect(b.sizeInMeters).toEqual(true);
     });
 
     it('is not destroyed', function() {
         expect(billboards.isDestroyed()).toEqual(false);
+    });
+
+    it('renders billboard with sizeInMeters', function() {
+        billboards.add({
+            position : Cartesian3.ZERO,
+            image : greenImage,
+            width : 2.0,
+            height : 2.0,
+            sizeInMeters : true
+        });
+
+        camera.position = new Cartesian3(2.0, 0.0, 0.0);
+        expect(scene.renderForSpecs()).toEqual([0, 255, 0, 255]);
+
+        camera.position = new Cartesian3(1e6, 0.0, 0.0);
+        expect(scene.renderForSpecs()).toEqual([0, 0, 0, 255]);
     });
 
     it('disables billboard scaleByDistance', function() {
@@ -1194,6 +1219,36 @@ defineSuite([
 
         expect(actual.center).toEqual(bs.center);
         expect(actual.radius).toEqual(bs.radius);
+    });
+
+    it('computes bounding sphere with non-centered origin', function() {
+        billboards.add({
+            image : greenImage,
+            position : Cartesian3.fromDegrees(-50.0, -50.0)
+        });
+        scene.renderForSpecs();
+        var centeredRadius = scene._commandList[0].boundingVolume.radius;
+        billboards.removeAll();
+
+        billboards.add({
+            image : greenImage,
+            position : Cartesian3.fromDegrees(-50.0, -50.0),
+            verticalOrigin: VerticalOrigin.TOP
+        });
+        scene.renderForSpecs();
+        var verticalRadius = scene._commandList[0].boundingVolume.radius;
+        billboards.removeAll();
+
+        billboards.add({
+            image : greenImage,
+            position : Cartesian3.fromDegrees(-50.0, -50.0),
+            horizontalOrigin: HorizontalOrigin.LEFT
+        });
+        scene.renderForSpecs();
+        var horizontalRadius = scene._commandList[0].boundingVolume.radius;
+
+        expect(verticalRadius).toEqual(2*centeredRadius);
+        expect(horizontalRadius).toEqual(2*centeredRadius);
     });
 
     it('can create a billboard using a URL', function() {
