@@ -1775,7 +1775,7 @@ define([
     function loadWithHttpRequest(url, responseType, method, data, headers, deferred, overrideMimeType) {
         // Note: only the 'json' responseType transforms the loaded buffer
         var URL = require('url').parse(url);
-        var http_s = require(URL.protocol.slice(0, -1));
+        var http_s = URL.protocol === 'https:' ? require('https') : require('http');
         var zlib = require('zlib');
         var options = {
             protocol : URL.protocol,
