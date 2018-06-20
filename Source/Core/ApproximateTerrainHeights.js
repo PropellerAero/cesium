@@ -56,6 +56,7 @@ define([
         }
 
         url = defaultValue(url, 'Assets/approximateTerrainHeights.json');
+        console.log('loading approximateTerrainHeights.json from ', buildModuleUrl(url));
         ApproximateTerrainHeights._initPromise = Resource.fetchJson(buildModuleUrl(url)).then(function(json) {
             ApproximateTerrainHeights._terrainHeights = json;
         });
