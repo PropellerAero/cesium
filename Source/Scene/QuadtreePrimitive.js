@@ -226,6 +226,55 @@ define([
         this._tilesInvalidated = true;
     };
 
+    QuadtreePrimitive.prototype.invalidateCurrentTiles = function(scene) {
+
+        var MINIMUM_TILE_LEVEL = 10;
+
+        var primitive = this;
+
+        primitive._tileReplacementQueue.trimTiles(0);
+        clearTileLoadQueue(this);
+
+        var tilesToProcess = [];
+
+        this.forEachRenderedTile(function(tile) {
+            tilesToProcess.push({
+                tile: tile,
+                queue: primitive._tileLoadQueueHigh
+            });
+        });
+
+        this.forEachLoadedTile(function(tile) {
+            tilesToProcess.push({
+                tile: tile,
+                queue: primitive._tileLoadQueueLow
+            });
+        });
+
+        var done = {};
+
+        var removeEventListener = scene.postRender.addEventListener(function() {
+            if(tilesToProcess.length){
+                var task = tilesToProcess.shift();
+                var tile = task.tile;
+                var key = '' + tile._level + ':' + tile._x + ':' + tile._y;
+
+                if(!done[key] && tile._level >= MINIMUM_TILE_LEVEL){
+                    //task.tile.freeResources(); // <<-- will invalidate child tiles
+                    tile.state = QuadtreeTileLoadState.START;
+                    tile.data = undefined;
+                    queueTileLoad(primitive, task.queue, task.tile, scene.frameState);
+                    console.log('tile: ', task.tile, key);
+                    done[key] = true;
+                }
+            } else {
+                removeEventListener();
+                console.log('DONE!');
+            }
+        });
+
+    };
+
     function invalidateAllTiles(primitive) {
         // Clear the replacement queue
         var replacementQueue = primitive._tileReplacementQueue;

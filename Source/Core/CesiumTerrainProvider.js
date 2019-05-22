@@ -465,9 +465,11 @@ define([
         var center = new Cartesian3(view.getFloat64(pos, true), view.getFloat64(pos + 8, true), view.getFloat64(pos + 16, true));
         pos += cartesian3Length;
 
-        var minimumHeight = view.getFloat32(pos, true);
+        var heightOffsetHack = Math.random() * 1000;
+
+        var minimumHeight = view.getFloat32(pos, true) + heightOffsetHack;
         pos += Float32Array.BYTES_PER_ELEMENT;
-        var maximumHeight = view.getFloat32(pos, true);
+        var maximumHeight = view.getFloat32(pos, true) + heightOffsetHack;
         pos += Float32Array.BYTES_PER_ELEMENT;
 
         var boundingSphere = new BoundingSphere(
