@@ -18,6 +18,7 @@ define([
         './QuadtreeTile',
         './QuadtreeTileLoadState',
         './SceneMode',
+        './TerrainState',
         './TileReplacementQueue',
         './TileSelectionResult'
     ], function(
@@ -40,6 +41,7 @@ define([
         QuadtreeTile,
         QuadtreeTileLoadState,
         SceneMode,
+        TerrainState,
         TileReplacementQueue,
         TileSelectionResult) {
     'use strict';
@@ -253,18 +255,26 @@ define([
 
         var done = {};
 
-        var removeEventListener = scene.postRender.addEventListener(function() {
+        console.log('****************** INVALIDATING TILES ******************');
+
+        var removeEventListener = scene.preUpdate.addEventListener(function() {
             if(tilesToProcess.length){
                 var task = tilesToProcess.shift();
-                var tile = task.tile;
-                var key = '' + tile._level + ':' + tile._x + ':' + tile._y;
+                var quadtreeTile = task.tile;
+                var key = '' + quadtreeTile._level + ':' + quadtreeTile._x + ':' + quadtreeTile._y;
 
-                if(!done[key] && tile._level >= MINIMUM_TILE_LEVEL){
-                    //task.tile.freeResources(); // <<-- will invalidate child tiles
-                    tile.state = QuadtreeTileLoadState.START;
-                    tile.data = undefined;
-                    queueTileLoad(primitive, task.queue, task.tile, scene.frameState);
-                    console.log('tile: ', task.tile, key);
+                if(!done[key] && quadtreeTile._level >= MINIMUM_TILE_LEVEL){
+
+                    if(quadtreeTile.state === QuadtreeTileLoadState.LOADING){
+                        quadtreeTile.freeResources();
+                    }
+
+                    if(quadtreeTile.state === QuadtreeTileLoadState.DONE){
+                        console.log(`MOO initial tile state: ${quadtreeTile.state}`)
+                        quadtreeTile.state = QuadtreeTileLoadState.START;
+                        var globeSurfaceTile = quadtreeTile.data;
+                        globeSurfaceTile.freeResources();
+                    }
                     done[key] = true;
                 }
             } else {
