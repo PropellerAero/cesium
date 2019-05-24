@@ -36,6 +36,8 @@ var worldTerrain = Cesium.createWorldTerrain({
     requestVertexNormals: true
 });
 
+worldTerrain.heightOffsetHack = 1000;
+
 var viewer = new Cesium.Viewer("cesiumContainer", {
     terrainProvider: worldTerrain
 });
@@ -56,6 +58,7 @@ viewer.camera.lookAt(target, offset);
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
 Sandcastle.addToolbarButton('Invalidate', function() {
+    worldTerrain.heightOffsetHack = -worldTerrain.heightOffsetHack;
     scene.globe._surface.invalidateCurrentTiles(scene);
 });
 

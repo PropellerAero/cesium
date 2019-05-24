@@ -239,47 +239,63 @@ define([
 
         var tilesToProcess = [];
 
-        this.forEachRenderedTile(function(tile) {
-            tilesToProcess.push({
-                tile: tile,
-                queue: primitive._tileLoadQueueHigh
-            });
-        });
-
         this.forEachLoadedTile(function(tile) {
-            tilesToProcess.push({
-                tile: tile,
-                queue: primitive._tileLoadQueueLow
-            });
+            if (tile._level >= MINIMUM_TILE_LEVEL) {
+                tilesToProcess.push(tile);
+            }
         });
 
-        var done = {};
+        var compareTiles = function(a,b) {
+            if(a._level < b._level){
+                return -1;
+            }
+            if(a._level > b._level){
+                return 1;
+            }
+            return 0;
+        };
 
-        console.log('****************** INVALIDATING TILES ******************');
+        tilesToProcess.sort(compareTiles);//.reverse();
+        console.log('Processing tiles based on levels: ', tilesToProcess.map(function(tile){return tile._level;}));
+
+        console.log('Invalidating tiles');
+
+        var done = false;
+
+        if(this._abortInvalidate){
+            this._abortInvalidate();
+        }
+
+        this._abortInvalidate = function() {
+            if(tilesToProcess.length > 0){
+                console.log('Aborted');
+            }
+            done = true;
+        };
 
         var removeEventListener = scene.preUpdate.addEventListener(function() {
-            if(tilesToProcess.length){
-                var task = tilesToProcess.shift();
-                var quadtreeTile = task.tile;
-                var key = '' + quadtreeTile._level + ':' + quadtreeTile._x + ':' + quadtreeTile._y;
+            if(!done && tilesToProcess.length){
+                var quadtreeTile = tilesToProcess.shift();
 
-                if(!done[key] && quadtreeTile._level >= MINIMUM_TILE_LEVEL){
+                if(quadtreeTile.state === QuadtreeTileLoadState.LOADING){
+                    quadtreeTile.freeResources();
+                }
 
-                    if(quadtreeTile.state === QuadtreeTileLoadState.LOADING){
-                        quadtreeTile.freeResources();
-                    }
+                if(quadtreeTile.state === QuadtreeTileLoadState.DONE){
+                    quadtreeTile.state = QuadtreeTileLoadState.START;
+                    quadtreeTile.renderable = false;
+                    quadtreeTile.upsampledFromParent = false;
 
-                    if(quadtreeTile.state === QuadtreeTileLoadState.DONE){
-                        console.log(`MOO initial tile state: ${quadtreeTile.state}`)
-                        quadtreeTile.state = QuadtreeTileLoadState.START;
-                        var globeSurfaceTile = quadtreeTile.data;
-                        globeSurfaceTile.freeResources();
-                    }
-                    done[key] = true;
+                    var globeSurfaceTile = quadtreeTile.data;
+                    globeSurfaceTile.freeResources();
+                }
+
+                if(tilesToProcess.length === 0){
+                    console.log('Done!');
                 }
             } else {
+                console.log('Final cleanup');
                 removeEventListener();
-                console.log('DONE!');
             }
         });
 

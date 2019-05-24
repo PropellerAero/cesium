@@ -111,6 +111,8 @@ define([
             ellipsoid : options.ellipsoid
         });
 
+        this.heightOffsetHack = 0;
+
         this._heightmapWidth = 65;
         this._levelZeroMaximumGeometricError = TerrainProvider.getEstimatedLevelZeroGeometricErrorForAHeightmap(this._tilingScheme.ellipsoid, this._heightmapWidth, this._tilingScheme.getNumberOfXTilesAtLevel(0));
 
@@ -465,11 +467,9 @@ define([
         var center = new Cartesian3(view.getFloat64(pos, true), view.getFloat64(pos + 8, true), view.getFloat64(pos + 16, true));
         pos += cartesian3Length;
 
-        var heightOffsetHack = Math.random() * 1000;
-
-        var minimumHeight = view.getFloat32(pos, true) + heightOffsetHack;
+        var minimumHeight = view.getFloat32(pos, true) + provider.heightOffsetHack;
         pos += Float32Array.BYTES_PER_ELEMENT;
-        var maximumHeight = view.getFloat32(pos, true) + heightOffsetHack;
+        var maximumHeight = view.getFloat32(pos, true) + provider.heightOffsetHack;
         pos += Float32Array.BYTES_PER_ELEMENT;
 
         var boundingSphere = new BoundingSphere(
