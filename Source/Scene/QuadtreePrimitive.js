@@ -273,21 +273,27 @@ define([
             done = true;
         };
 
+        function freeResourcesLeavingChildrenIntact(quadtreeTile){
+            quadtreeTile.state = QuadtreeTileLoadState.START;
+            quadtreeTile.renderable = false;
+            quadtreeTile.upsampledFromParent = false;
+
+            if (defined(quadtreeTile.data) && defined(quadtreeTile.data.freeResources)) {
+                quadtreeTile.data.freeResources();
+            }
+        }
+
         var removeEventListener = scene.preUpdate.addEventListener(function() {
             if(!done && tilesToProcess.length){
                 var quadtreeTile = tilesToProcess.shift();
 
                 if(quadtreeTile.state === QuadtreeTileLoadState.LOADING){
-                    quadtreeTile.freeResources();
+                    //quadtreeTile.freeResources();
+                    freeResourcesLeavingChildrenIntact(quadtreeTile);
                 }
 
                 if(quadtreeTile.state === QuadtreeTileLoadState.DONE){
-                    quadtreeTile.state = QuadtreeTileLoadState.START;
-                    quadtreeTile.renderable = false;
-                    quadtreeTile.upsampledFromParent = false;
-
-                    var globeSurfaceTile = quadtreeTile.data;
-                    globeSurfaceTile.freeResources();
+                    freeResourcesLeavingChildrenIntact(quadtreeTile);
                 }
 
                 if(tilesToProcess.length === 0){
