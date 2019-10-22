@@ -1075,8 +1075,10 @@ define([
         var error = (maxGeometricError * height) / (distance * sseDenominator);
 
         if (frameState.fog.enabled) {
-            error = error - CesiumMath.fog(distance, frameState.fog.density) * frameState.fog.sse;
+            error -= CesiumMath.fog(distance, frameState.fog.density) * frameState.fog.sse;
         }
+
+        error /= frameState.pixelRatio;
 
         return error;
     }
@@ -1097,8 +1099,10 @@ define([
         var error = maxGeometricError / pixelSize;
 
         if (frameState.fog.enabled && frameState.mode !== SceneMode.SCENE2D) {
-            error = error - CesiumMath.fog(tile._distance, frameState.fog.density) * frameState.fog.sse;
+            error -= CesiumMath.fog(tile._distance, frameState.fog.density) * frameState.fog.sse;
         }
+
+        error /= frameState.pixelRatio;
 
         return error;
     }
@@ -1212,7 +1216,11 @@ define([
                         if (!defined(rayOrigin)) {
                             // intersection point is outside the ellipsoid, try other value
                             // minimum height (-11500.0) for the terrain set, need to get this information from the terrain provider
-                            var magnitude = Math.min(defaultValue(tile.data.minimumHeight, 0.0),-11500.0);
+                            var minimumHeight;
+                            if (defined(tile.data.tileBoundingRegion)) {
+                                minimumHeight = tile.data.tileBoundingRegion.minimumHeight;
+                            }
+                            var magnitude = Math.min(defaultValue(minimumHeight, 0.0), -11500.0);
 
                             // multiply by the *positive* value of the magnitude
                             var vectorToMinimumPoint = Cartesian3.multiplyByScalar(surfaceNormal, Math.abs(magnitude) + 1, scratchPosition);

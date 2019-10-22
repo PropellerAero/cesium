@@ -9,6 +9,9 @@ define([
     'use strict';
 
     return function (env, includedCategory, excludedCategory, webglValidation, webglStub, release) {
+        // set this for uniform test resolution across devices
+        window.devicePixelRatio = 1;
+
         function defineSuite(deps, name, suite, categories, focus) {
             /*global define,describe,fdescribe*/
             if (typeof suite === 'object' || typeof suite === 'string') {
@@ -31,7 +34,7 @@ define([
             define(deps, function() {
                 var args = arguments;
                 if (focus) {
-                    fdescribe(name, function() {
+                    fdescribe(name, function() { //eslint-disable-line
                         suite.apply(null, args);
                     }, categories);
                 } else {

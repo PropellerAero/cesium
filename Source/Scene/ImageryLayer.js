@@ -164,7 +164,7 @@ define([
     function ImageryLayer(imageryProvider, options) {
         this._imageryProvider = imageryProvider;
 
-        options = defaultValue(options, {});
+        options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
         /**
          * The alpha blending value of this layer, with 0.0 representing fully transparent and
@@ -983,6 +983,10 @@ define([
                         that._finalizeReprojectTexture(context, outputTexture);
                         imagery.state = ImageryState.READY;
                         imagery.releaseReference();
+                    },
+                    canceled : function() {
+                        imagery.state = ImageryState.TEXTURE_LOADED;
+                        imagery.releaseReference();
                     }
                 });
                 this._reprojectComputeCommands.push(computeCommand);
@@ -1017,6 +1021,11 @@ define([
      * @private
      */
     ImageryLayer.prototype.cancelReprojections = function() {
+        this._reprojectComputeCommands.forEach(function(command) {
+            if (command.canceled) {
+                command.canceled();
+            }
+        });
         this._reprojectComputeCommands.length = 0;
     };
 
