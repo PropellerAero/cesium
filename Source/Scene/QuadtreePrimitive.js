@@ -228,6 +228,7 @@ define([
         this._tilesInvalidated = true;
     };
 
+    // PROPELLER HACK: Allows invalidating currently rendered tiles for dynamic reloads
     QuadtreePrimitive.prototype.invalidateCurrentTiles = function(scene) {
 
         var MINIMUM_TILE_LEVEL = 10;
@@ -255,10 +256,7 @@ define([
             return 0;
         };
 
-        tilesToProcess.sort(compareTiles);//.reverse();
-        console.log('Processing tiles based on levels: ', tilesToProcess.map(function(tile){return tile._level;}));
-
-        console.log('Invalidating tiles');
+        tilesToProcess.sort(compareTiles);
 
         var done = false;
 
@@ -267,9 +265,6 @@ define([
         }
 
         this._abortInvalidate = function() {
-            if(tilesToProcess.length > 0){
-                console.log('Aborted');
-            }
             done = true;
         };
 
@@ -288,7 +283,6 @@ define([
                 var quadtreeTile = tilesToProcess.shift();
 
                 if(quadtreeTile.state === QuadtreeTileLoadState.LOADING){
-                    //quadtreeTile.freeResources();
                     freeResourcesLeavingChildrenIntact(quadtreeTile);
                 }
 
@@ -296,11 +290,7 @@ define([
                     freeResourcesLeavingChildrenIntact(quadtreeTile);
                 }
 
-                if(tilesToProcess.length === 0){
-                    console.log('Done!');
-                }
             } else {
-                console.log('Final cleanup');
                 removeEventListener();
             }
         });
