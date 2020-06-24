@@ -1,5 +1,4 @@
 /*eslint-env node*/
-"use strict";
 
 var fs = require("fs");
 var path = require("path");
@@ -1557,7 +1556,7 @@ function createTypeScriptDefinitions() {
 
   // Wrap the source to actually be inside of a declared cesium module
   // and add any workaround and private utility types.
-  source = `declare module "cesium" {
+  source = `declare module "@propelleraero/cesium" {
 
 /**
  * Private interfaces to support PropertyBag being a dictionary-like object.
@@ -1582,7 +1581,7 @@ ${source}
     var assignmentName = path.basename(file, path.extname(file));
     if (publicModules.has(assignmentName)) {
       publicModules.delete(assignmentName);
-      source += `declare module "cesium/Source/${moduleId}" { import { ${assignmentName} } from 'cesium'; export default ${assignmentName}; }\n`;
+      source += `declare module "@propelleraero/cesium/Source/${moduleId}" { import { ${assignmentName} } from '@propelleraero/cesium'; export default ${assignmentName}; }\n`;
     }
   });
 
