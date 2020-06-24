@@ -1,7 +1,7 @@
 {
   "name": "@propelleraero/cesium",
   "version": "1.70.1",
-  "description": "CesiumJS is a JavaScript library for creating 3D globes and 2D maps in a web browser without a plugin.",
+  "description": "Propeller fork of Cesium.",
   "homepage": "http://cesium.com/cesiumjs/",
   "license": "Apache-2.0",
   "author": {
