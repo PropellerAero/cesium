@@ -1,6 +1,6 @@
 {
   "name": "@propelleraero/cesium",
-  "version": "1.70.1",
+  "version": "1.70.2",
   "description": "Propeller fork of Cesium.",
   "homepage": "http://cesium.com/cesiumjs/",
   "license": "Apache-2.0",
