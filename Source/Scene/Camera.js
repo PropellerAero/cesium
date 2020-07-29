@@ -29,9 +29,120 @@ import CameraFlightPath from "./CameraFlightPath.js";
 import MapMode2D from "./MapMode2D.js";
 import SceneMode from "./SceneMode.js";
 
+function clampSphere(sphere, position, result) {
+  if (
+    !defined(sphere) ||
+    !defined(position) ||
+    !position ||
+    position == Cartesian3.ZERO
+  ) {
+    return position;
+  }
+  result = Cartesian3.clone(position, result);
+  if (Cartesian3.distance(result, sphere.center) <= sphere.radius) {
+    return result;
+  }
+  let dir = Cartesian3.subtract(result, sphere.center, result);
+  dir = Cartesian3.normalize(dir, dir);
+  dir = Cartesian3.multiplyByScalar(dir, sphere.radius, dir);
+  return Cartesian3.add(sphere.center, dir, result);
+}
+
+function clampRectangle(boundingRectangle, position, result, minElevation) {
+  if (
+    !defined(boundingRectangle) ||
+    !defined(position) ||
+    !position ||
+    position.equals(Cartesian3.Zero)
+  ) {
+    return position;
+  }
+  result = Cartesian3.clone(position, result);
+  let tmp = new Cartographic();
+  tmp = Cartographic.fromCartesian(result, Ellipsoid.WGS84, tmp);
+  if (tmp && typeof tmp !== "undefinded") {
+    if (Rectangle.contains(boundingRectangle, tmp)) {
+      if (tmp.height < minElevation) {
+        tmp.height = minElevation;
+        return Cartographic.toCartesian(tmp);
+      }
+      return result;
+    }
+    let minLong = boundingRectangle.east;
+    let maxLong = boundingRectangle.west;
+    if (minLong > maxLong) {
+      [minLong, maxLong] = [maxLong, minLong];
+    }
+    let minLat = boundingRectangle.south;
+    let maxLat = boundingRectangle.north;
+    if (minLat > maxLat) {
+      [minLat, maxLat] = [maxLat, minLat];
+    }
+    tmp.longitude = CesiumMath.clamp(tmp.longitude, minLong, maxLong);
+    tmp.latitude = CesiumMath.clamp(tmp.longitude, minLat, maxLat);
+    if (tmp.height < minElevation) {
+      tmp.height = minElevation;
+    }
+    result = Cartographic.toCartesian(tmp, Ellipsoid.WGS84, result);
+    return result;
+  }
+  return result;
+}
+
+function clampToBounds(circle, position, result, minElevation) {
+  if (
+    typeof circle === "undefined" ||
+    !circle ||
+    !defined(position) ||
+    !position ||
+    position.equals(Cartesian3.ZERO)
+  ) {
+    return position;
+  }
+  result = Cartesian3.clone(position, result);
+  const tmpCenter = Cartesian3.clone(circle.center);
+  let tmp,
+    tmpProjectedCarto2,
+    tmpProjectedCarto = new Cartographic();
+  tmpProjectedCarto = Cartographic.fromCartesian(
+    result,
+    Ellipsoid.WGS84,
+    tmpProjectedCarto
+  );
+  const origHeight = tmpProjectedCarto.height;
+  tmpProjectedCarto.height = circle.height;
+  tmp = Cartographic.toCartesian(tmpProjectedCarto, Ellipsoid.WGS84, tmp);
+  if (Cartesian3.distance(tmp, tmpCenter) <= circle.radius) {
+    if (tmpProjectedCarto.height < minElevation) {
+      tmpProjectedCarto.height = minElevation;
+      return Cartographic.toCartesian(tmpProjectedCarto);
+    }
+    return result;
+  }
+  // get point on radius, fix height
+  let resultProjCarte = new Cartesian3();
+  let dir = new Cartesian3();
+  dir = Cartesian3.normalize(Cartesian3.subtract(tmpCenter, tmp, dir), dir);
+  resultProjCarte = Cartesian3.add(tmpCenter, dir, resultProjCarte);
+  //fix height
+  tmpProjectedCarto2 = Cartographic.fromCartesian(
+    resultProjCarte,
+    Ellipsoid.WGS84,
+    tmpProjectedCarto2
+  );
+  tmpProjectedCarto2.height = origHeight;
+  return Cartographic.toCartesian(tmpProjectedCarto2, Ellipsoid.WGS84, result);
+}
+
 /**
- * The camera is defined by a position, orientation, and view frustum.
- * <br /><br />
+   * 
+   * var right = forward.cross(new THREE.Vector3(0, 1, 0)).normalize();
+You can then also get the relative up vector, by doing:
+
+var up = right.cross(forward).normalize();
+
+   * The camera is defined by a position, orientation, and view frustum.
+   * <br /><br />
  * The orientation forms an orthonormal basis with a view, up and right = view x up unit vectors.
  * <br /><br />
  * The viewing frustum is defined by 6 planes.
@@ -67,7 +178,10 @@ function Camera(scene) {
   }
   //>>includeEnd('debug');
   this._scene = scene;
-
+  this.boundingObject = undefined;
+  this.boundingSphere = undefined;
+  this.boundingHeight = undefined;
+  this.boundingRectangle = undefined;
   this._transform = Matrix4.clone(Matrix4.IDENTITY);
   this._invTransform = Matrix4.clone(Matrix4.IDENTITY);
   this._actualTransform = Matrix4.clone(Matrix4.IDENTITY);
@@ -579,7 +693,6 @@ var scratchCartesian = new Cartesian3();
 
 function updateMembers(camera) {
   var mode = camera._mode;
-
   var heightChanged = false;
   var height = 0.0;
   if (mode === SceneMode.SCENE2D) {
@@ -591,6 +704,7 @@ function updateMembers(camera) {
   var positionChanged =
     !Cartesian3.equals(position, camera.position) || heightChanged;
   if (positionChanged) {
+    //pan
     position = Cartesian3.clone(camera.position, camera._position);
   }
 
@@ -645,16 +759,35 @@ function updateMembers(camera) {
   }
 
   var transform = camera._actualTransform;
-
   if (positionChanged || transformChanged) {
     camera._positionWC = Matrix4.multiplyByPoint(
       transform,
       position,
       camera._positionWC
     );
-
     // Compute the Cartographic position of the camera.
     if (mode === SceneMode.SCENE3D || mode === SceneMode.MORPHING) {
+      if (camera.boundingSphere) {
+        clampSphere(
+          camera.boundingSphere,
+          camera._positionWC,
+          camera._positionWC
+        );
+      } else if (camera.boundingRectangle) {
+        clampRectangle(
+          camera.boundingRectangle,
+          camera._positionWC,
+          camera._positionWC,
+          camera.boundingHeight
+        );
+      } else if (camera.boundingObject) {
+        clampToBounds(
+          camera.boundingObject,
+          camera._positionWC,
+          camera._positionWC,
+          camera.boundingHeight
+        );
+      }
       camera._positionCartographic = camera._projection.ellipsoid.cartesianToCartographic(
         camera._positionWC,
         camera._positionCartographic
@@ -1003,6 +1136,7 @@ Object.defineProperties(Camera.prototype, {
    */
   moveStart: {
     get: function () {
+      // console.error("moveStart");
       return this._moveStart;
     },
   },
@@ -1057,8 +1191,8 @@ Camera.prototype.update = function (mode) {
       "A PerspectiveFrustum or OrthographicFrustum is required in 3D and Columbus view"
     );
   }
-  //>>includeEnd('debug');
 
+  //>>includeEnd('debug');
   var updateFrustum = false;
   if (mode !== this._mode) {
     this._mode = mode;
@@ -1104,6 +1238,7 @@ Camera.prototype._setTransform = function (transform) {
   updateMembers(this);
   var inverse = this._actualInvTransform;
 
+  //back in camera space
   Matrix4.multiplyByPoint(inverse, position, this.position);
   Matrix4.multiplyByPointAsVector(inverse, direction, this.direction);
   Matrix4.multiplyByPointAsVector(inverse, up, this.up);
@@ -1417,7 +1552,6 @@ Camera.prototype.setView = function (options) {
   if (defined(options.endTransform)) {
     this._setTransform(options.endTransform);
   }
-
   var convert = defaultValue(options.convert, true);
   var destination = defaultValue(
     options.destination,
@@ -1430,7 +1564,26 @@ Camera.prototype.setView = function (options) {
     );
     convert = false;
   }
-
+  //PROPELLER HACK
+  if (typeof destination !== "undefined") {
+    if (this.boundingSphere) {
+      clampSphere(this.boundingSphere, destination, destination);
+    } else if (this.boundingRectangle) {
+      clampRectangle(
+        this.boundingRectangle,
+        destination,
+        destination,
+        this.boundingHeight
+      );
+    } else if (this.boundingObject) {
+      clampToBounds(
+        this.boundingObject,
+        destination,
+        destination,
+        this.boundingHeight
+      );
+    }
+  }
   if (defined(orientation.direction)) {
     orientation = directionUpToHeadingPitchRoll(
       this,
@@ -1439,7 +1592,6 @@ Camera.prototype.setView = function (options) {
       scratchSetViewOptions.orientation
     );
   }
-
   scratchHpr.heading = defaultValue(orientation.heading, 0.0);
   scratchHpr.pitch = defaultValue(orientation.pitch, -CesiumMath.PI_OVER_TWO);
   scratchHpr.roll = defaultValue(orientation.roll, 0.0);
@@ -1452,7 +1604,6 @@ Camera.prototype.setView = function (options) {
     setViewCV(this, destination, scratchHpr, convert);
   }
 };
-
 var pitchScratch = new Cartesian3();
 /**
  * Fly the camera to the home view.  Use {@link Camera#.DEFAULT_VIEW_RECTANGLE} to set
@@ -1695,7 +1846,7 @@ Camera.prototype.move = function (direction, amount) {
     throw new DeveloperError("direction is required.");
   }
   //>>includeEnd('debug');
-
+  console.error("move ");
   var cameraPosition = this.position;
   Cartesian3.multiplyByScalar(direction, amount, moveScratch);
   Cartesian3.add(cameraPosition, moveScratch, cameraPosition);
@@ -1716,7 +1867,7 @@ Camera.prototype.move = function (direction, amount) {
  */
 Camera.prototype.moveForward = function (amount) {
   amount = defaultValue(amount, this.defaultMoveAmount);
-
+  console.error("moveForward" + amount);
   if (this._mode === SceneMode.SCENE2D) {
     // 2D mode
     zoom2D(this, amount);
@@ -1737,7 +1888,7 @@ Camera.prototype.moveForward = function (amount) {
  */
 Camera.prototype.moveBackward = function (amount) {
   amount = defaultValue(amount, this.defaultMoveAmount);
-
+  console.error("moveBackward" + amount);
   if (this._mode === SceneMode.SCENE2D) {
     // 2D mode
     zoom2D(this, -amount);
@@ -1755,6 +1906,7 @@ Camera.prototype.moveBackward = function (amount) {
  * @see Camera#moveDown
  */
 Camera.prototype.moveUp = function (amount) {
+  console.error("moveUp" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.up, amount);
 };
@@ -1768,6 +1920,7 @@ Camera.prototype.moveUp = function (amount) {
  * @see Camera#moveUp
  */
 Camera.prototype.moveDown = function (amount) {
+  console.error("moveDown" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.up, -amount);
 };
@@ -1780,6 +1933,7 @@ Camera.prototype.moveDown = function (amount) {
  * @see Camera#moveLeft
  */
 Camera.prototype.moveRight = function (amount) {
+  console.error("moveRight" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.right, amount);
 };
@@ -1793,6 +1947,7 @@ Camera.prototype.moveRight = function (amount) {
  * @see Camera#moveRight
  */
 Camera.prototype.moveLeft = function (amount) {
+  console.error("moveLeft" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.right, -amount);
 };
@@ -1807,7 +1962,6 @@ Camera.prototype.moveLeft = function (amount) {
  */
 Camera.prototype.lookLeft = function (amount) {
   amount = defaultValue(amount, this.defaultLookAmount);
-
   // only want view of map to change in 3D mode, 2D visual is incorrect when look changes
   if (this._mode !== SceneMode.SCENE2D) {
     this.look(this.up, -amount);
@@ -2153,6 +2307,7 @@ function zoom2D(camera, amount) {
 }
 
 function zoom3D(camera, amount) {
+  console.error("zoom3D");
   camera.move(camera.direction, amount);
 }
 
@@ -2164,6 +2319,7 @@ function zoom3D(camera, amount) {
  * @see Camera#zoomOut
  */
 Camera.prototype.zoomIn = function (amount) {
+  console.error("zoomIN");
   amount = defaultValue(amount, this.defaultZoomAmount);
   if (this._mode === SceneMode.SCENE2D) {
     zoom2D(this, amount);
@@ -2181,6 +2337,7 @@ Camera.prototype.zoomIn = function (amount) {
  * @see Camera#zoomIn
  */
 Camera.prototype.zoomOut = function (amount) {
+  console.error("zoomOut");
   amount = defaultValue(amount, this.defaultZoomAmount);
   if (this._mode === SceneMode.SCENE2D) {
     zoom2D(this, -amount);
