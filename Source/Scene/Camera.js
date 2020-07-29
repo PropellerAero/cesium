@@ -135,14 +135,8 @@ function clampToBounds(circle, position, result, minElevation) {
 }
 
 /**
-   * 
-   * var right = forward.cross(new THREE.Vector3(0, 1, 0)).normalize();
-You can then also get the relative up vector, by doing:
-
-var up = right.cross(forward).normalize();
-
-   * The camera is defined by a position, orientation, and view frustum.
-   * <br /><br />
+ * The camera is defined by a position, orientation, and view frustum.
+ * <br /><br />
  * The orientation forms an orthonormal basis with a view, up and right = view x up unit vectors.
  * <br /><br />
  * The viewing frustum is defined by 6 planes.
@@ -706,7 +700,6 @@ function updateMembers(camera) {
   var positionChanged =
     !Cartesian3.equals(position, camera.position) || heightChanged;
   if (positionChanged) {
-    //pan
     position = Cartesian3.clone(camera.position, camera._position);
   }
 
