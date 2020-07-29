@@ -178,10 +178,12 @@ function Camera(scene) {
   }
   //>>includeEnd('debug');
   this._scene = scene;
+  //PROPELLER HACK
   this.boundingObject = undefined;
   this.boundingSphere = undefined;
   this.boundingHeight = undefined;
   this.boundingRectangle = undefined;
+  //PROPELLER HACK
   this._transform = Matrix4.clone(Matrix4.IDENTITY);
   this._invTransform = Matrix4.clone(Matrix4.IDENTITY);
   this._actualTransform = Matrix4.clone(Matrix4.IDENTITY);
@@ -767,6 +769,7 @@ function updateMembers(camera) {
     );
     // Compute the Cartographic position of the camera.
     if (mode === SceneMode.SCENE3D || mode === SceneMode.MORPHING) {
+      //PROPELLER HACK
       if (camera.boundingSphere) {
         clampSphere(
           camera.boundingSphere,
@@ -1136,7 +1139,6 @@ Object.defineProperties(Camera.prototype, {
    */
   moveStart: {
     get: function () {
-      // console.error("moveStart");
       return this._moveStart;
     },
   },
@@ -1846,7 +1848,6 @@ Camera.prototype.move = function (direction, amount) {
     throw new DeveloperError("direction is required.");
   }
   //>>includeEnd('debug');
-  console.error("move ");
   var cameraPosition = this.position;
   Cartesian3.multiplyByScalar(direction, amount, moveScratch);
   Cartesian3.add(cameraPosition, moveScratch, cameraPosition);
@@ -1867,7 +1868,6 @@ Camera.prototype.move = function (direction, amount) {
  */
 Camera.prototype.moveForward = function (amount) {
   amount = defaultValue(amount, this.defaultMoveAmount);
-  console.error("moveForward" + amount);
   if (this._mode === SceneMode.SCENE2D) {
     // 2D mode
     zoom2D(this, amount);
@@ -1888,7 +1888,6 @@ Camera.prototype.moveForward = function (amount) {
  */
 Camera.prototype.moveBackward = function (amount) {
   amount = defaultValue(amount, this.defaultMoveAmount);
-  console.error("moveBackward" + amount);
   if (this._mode === SceneMode.SCENE2D) {
     // 2D mode
     zoom2D(this, -amount);
@@ -1906,7 +1905,6 @@ Camera.prototype.moveBackward = function (amount) {
  * @see Camera#moveDown
  */
 Camera.prototype.moveUp = function (amount) {
-  console.error("moveUp" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.up, amount);
 };
@@ -1920,7 +1918,6 @@ Camera.prototype.moveUp = function (amount) {
  * @see Camera#moveUp
  */
 Camera.prototype.moveDown = function (amount) {
-  console.error("moveDown" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.up, -amount);
 };
@@ -1933,7 +1930,6 @@ Camera.prototype.moveDown = function (amount) {
  * @see Camera#moveLeft
  */
 Camera.prototype.moveRight = function (amount) {
-  console.error("moveRight" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.right, amount);
 };
@@ -1947,7 +1943,6 @@ Camera.prototype.moveRight = function (amount) {
  * @see Camera#moveRight
  */
 Camera.prototype.moveLeft = function (amount) {
-  console.error("moveLeft" + amount);
   amount = defaultValue(amount, this.defaultMoveAmount);
   this.move(this.right, -amount);
 };
@@ -2307,7 +2302,6 @@ function zoom2D(camera, amount) {
 }
 
 function zoom3D(camera, amount) {
-  console.error("zoom3D");
   camera.move(camera.direction, amount);
 }
 
@@ -2319,7 +2313,6 @@ function zoom3D(camera, amount) {
  * @see Camera#zoomOut
  */
 Camera.prototype.zoomIn = function (amount) {
-  console.error("zoomIN");
   amount = defaultValue(amount, this.defaultZoomAmount);
   if (this._mode === SceneMode.SCENE2D) {
     zoom2D(this, amount);
@@ -2337,7 +2330,6 @@ Camera.prototype.zoomIn = function (amount) {
  * @see Camera#zoomIn
  */
 Camera.prototype.zoomOut = function (amount) {
-  console.error("zoomOut");
   amount = defaultValue(amount, this.defaultZoomAmount);
   if (this._mode === SceneMode.SCENE2D) {
     zoom2D(this, -amount);
