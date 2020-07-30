@@ -42,10 +42,11 @@ function clampSphere(sphere, position, result) {
   if (Cartesian3.distance(result, sphere.center) <= sphere.radius) {
     return result;
   }
-  let dir = Cartesian3.subtract(result, sphere.center, result);
-  dir = Cartesian3.normalize(dir, dir);
-  dir = Cartesian3.multiplyByScalar(dir, sphere.radius, dir);
-  return Cartesian3.add(sphere.center, dir, result);
+  let dirV = new Cartesian3();
+  dirV = Cartesian3.subtract(result, sphere.center, dirV);
+  dirV = Cartesian3.normalize(dirV, dirV);
+  dirV = Cartesian3.multiplyByScalar(dirV, sphere.radius, dirV);
+  return Cartesian3.add(sphere.center, dirV, result);
 }
 
 function clampRectangle(boundingRectangle, position, result, minElevation) {
@@ -121,9 +122,9 @@ function clampToBounds(circle, position, result, minElevation) {
   }
   // get point on radius, fix height
   let resultProjCarte = new Cartesian3();
-  let dir = new Cartesian3();
-  dir = Cartesian3.normalize(Cartesian3.subtract(tmpCenter, tmp, dir), dir);
-  resultProjCarte = Cartesian3.add(tmpCenter, dir, resultProjCarte);
+  let dirV = new Cartesian3();
+  dirV = Cartesian3.normalize(Cartesian3.subtract(tmpCenter, tmp, dirV), dirV);
+  resultProjCarte = Cartesian3.add(tmpCenter, dirV, resultProjCarte);
   //fix height
   tmpProjectedCarto2 = Cartographic.fromCartesian(
     resultProjCarte,
