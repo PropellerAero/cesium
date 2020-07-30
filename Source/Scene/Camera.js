@@ -38,11 +38,13 @@ function clampSphere(sphere, position, result) {
   ) {
     return position;
   }
+
   result = Cartesian3.clone(position, result);
   if (Cartesian3.distance(result, sphere.center) <= sphere.radius) {
     return result;
   }
-  let dirV = new Cartesian3();
+  var dirV = new Cartesian3();
+
   dirV = Cartesian3.subtract(result, sphere.center, dirV);
   dirV = Cartesian3.normalize(dirV, dirV);
   dirV = Cartesian3.multiplyByScalar(dirV, sphere.radius, dirV);
@@ -59,7 +61,7 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
     return position;
   }
   result = Cartesian3.clone(position, result);
-  let tmp = new Cartographic();
+  var tmp = new Cartographic();
   tmp = Cartographic.fromCartesian(result, Ellipsoid.WGS84, tmp);
   if (tmp && typeof tmp !== "undefinded") {
     if (Rectangle.contains(boundingRectangle, tmp)) {
@@ -69,15 +71,15 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
       }
       return result;
     }
-    let minLong = boundingRectangle.east;
-    let maxLong = boundingRectangle.west;
+    var minLong = boundingRectangle.east;
+    var maxLong = boundingRectangle.west;
     if (minLong > maxLong) {
-      [minLong, maxLong] = [maxLong, minLong];
+      minLong = maxLong + ((maxLong = minLong), 0);
     }
-    let minLat = boundingRectangle.south;
-    let maxLat = boundingRectangle.north;
+    var minLat = boundingRectangle.south;
+    var maxLat = boundingRectangle.north;
     if (minLat > maxLat) {
-      [minLat, maxLat] = [maxLat, minLat];
+      minLat = maxLat + ((maxLat = minLat), 0);
     }
     tmp.longitude = CesiumMath.clamp(tmp.longitude, minLong, maxLong);
     tmp.latitude = CesiumMath.clamp(tmp.longitude, minLat, maxLat);
@@ -101,8 +103,8 @@ function clampToBounds(circle, position, result, minElevation) {
     return position;
   }
   result = Cartesian3.clone(position, result);
-  const tmpCenter = Cartesian3.clone(circle.center);
-  let tmp,
+  var tmpCenter = Cartesian3.clone(circle.center);
+  var tmp,
     tmpProjectedCarto2,
     tmpProjectedCarto = new Cartographic();
   tmpProjectedCarto = Cartographic.fromCartesian(
@@ -110,7 +112,7 @@ function clampToBounds(circle, position, result, minElevation) {
     Ellipsoid.WGS84,
     tmpProjectedCarto
   );
-  const origHeight = tmpProjectedCarto.height;
+  var origHeight = tmpProjectedCarto.height;
   tmpProjectedCarto.height = circle.height;
   tmp = Cartographic.toCartesian(tmpProjectedCarto, Ellipsoid.WGS84, tmp);
   if (Cartesian3.distance(tmp, tmpCenter) <= circle.radius) {
@@ -121,8 +123,8 @@ function clampToBounds(circle, position, result, minElevation) {
     return result;
   }
   // get point on radius, fix height
-  let resultProjCarte = new Cartesian3();
-  let dirV = new Cartesian3();
+  var resultProjCarte = new Cartesian3();
+  var dirV = new Cartesian3();
   dirV = Cartesian3.normalize(Cartesian3.subtract(tmpCenter, tmp, dirV), dirV);
   resultProjCarte = Cartesian3.add(tmpCenter, dirV, resultProjCarte);
   //fix height
@@ -2583,7 +2585,7 @@ function rectangleCameraPosition3D(camera, rectangle, result, updateCamera) {
   // Find the midpoint latitude.
   //
   // EllipsoidGeodesic will fail if the north and south edges are very close to being on opposite sides of the ellipsoid.
-  // Ideally we'd just call EllipsoidGeodesic.setEndPoints and let it throw when it detects this case, but sadly it doesn't
+  // Ideally we'd just call EllipsoidGeodesic.setEndPoints and var it throw when it detects this case, but sadly it doesn't
   // even look for this case in optimized builds, so we have to test for it here instead.
   //
   // Fortunately, this case can only happen (here) when north is very close to the north pole and south is very close to the south pole,
