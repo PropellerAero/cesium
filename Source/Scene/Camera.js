@@ -62,11 +62,15 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
   }
   result = Cartesian3.clone(position, result);
   var tmp = new Cartographic();
+  const maxElevation = minElevation + 1000;
   tmp = Cartographic.fromCartesian(result, Ellipsoid.WGS84, tmp);
   if (tmp && typeof tmp !== "undefinded") {
     if (Rectangle.contains(boundingRectangle, tmp)) {
       if (tmp.height < minElevation) {
         tmp.height = minElevation;
+        return Cartographic.toCartesian(tmp);
+      } else if (tmp.height > maxElevation) {
+        tmp.height = maxElevation;
         return Cartographic.toCartesian(tmp);
       }
       return result;
@@ -85,56 +89,13 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
     tmp.latitude = CesiumMath.clamp(tmp.longitude, minLat, maxLat);
     if (tmp.height < minElevation) {
       tmp.height = minElevation;
+    } else if (tmp.height > maxElevation) {
+      tmp.height = maxElevation;
     }
     result = Cartographic.toCartesian(tmp, Ellipsoid.WGS84, result);
     return result;
   }
   return result;
-}
-
-function clampToBounds(circle, position, result, minElevation) {
-  if (
-    typeof circle === "undefined" ||
-    !circle ||
-    !defined(position) ||
-    !position ||
-    position.equals(Cartesian3.ZERO)
-  ) {
-    return position;
-  }
-  result = Cartesian3.clone(position, result);
-  var tmpCenter = Cartesian3.clone(circle.center);
-  var tmp,
-    tmpProjectedCarto2,
-    tmpProjectedCarto = new Cartographic();
-  tmpProjectedCarto = Cartographic.fromCartesian(
-    result,
-    Ellipsoid.WGS84,
-    tmpProjectedCarto
-  );
-  var origHeight = tmpProjectedCarto.height;
-  tmpProjectedCarto.height = circle.height;
-  tmp = Cartographic.toCartesian(tmpProjectedCarto, Ellipsoid.WGS84, tmp);
-  if (Cartesian3.distance(tmp, tmpCenter) <= circle.radius) {
-    if (tmpProjectedCarto.height < minElevation) {
-      tmpProjectedCarto.height = minElevation;
-      return Cartographic.toCartesian(tmpProjectedCarto);
-    }
-    return result;
-  }
-  // get point on radius, fix height
-  var resultProjCarte = new Cartesian3();
-  var dirV = new Cartesian3();
-  dirV = Cartesian3.normalize(Cartesian3.subtract(tmpCenter, tmp, dirV), dirV);
-  resultProjCarte = Cartesian3.add(tmpCenter, dirV, resultProjCarte);
-  //fix height
-  tmpProjectedCarto2 = Cartographic.fromCartesian(
-    resultProjCarte,
-    Ellipsoid.WGS84,
-    tmpProjectedCarto2
-  );
-  tmpProjectedCarto2.height = origHeight;
-  return Cartographic.toCartesian(tmpProjectedCarto2, Ellipsoid.WGS84, result);
 }
 
 /**
@@ -775,13 +736,6 @@ function updateMembers(camera) {
       } else if (camera.boundingRectangle) {
         clampRectangle(
           camera.boundingRectangle,
-          camera._positionWC,
-          camera._positionWC,
-          camera.boundingHeight
-        );
-      } else if (camera.boundingObject) {
-        clampToBounds(
-          camera.boundingObject,
           camera._positionWC,
           camera._positionWC,
           camera.boundingHeight
@@ -1569,13 +1523,6 @@ Camera.prototype.setView = function (options) {
     } else if (this.boundingRectangle) {
       clampRectangle(
         this.boundingRectangle,
-        destination,
-        destination,
-        this.boundingHeight
-      );
-    } else if (this.boundingObject) {
-      clampToBounds(
-        this.boundingObject,
         destination,
         destination,
         this.boundingHeight
