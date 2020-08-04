@@ -62,7 +62,7 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
   }
   result = Cartesian3.clone(position, result);
   var tmp = new Cartographic();
-  const maxElevation = minElevation + 1000;
+  var maxElevation = minElevation + 1000;
   tmp = Cartographic.fromCartesian(result, Ellipsoid.WGS84, tmp);
   if (tmp && typeof tmp !== "undefinded") {
     if (Rectangle.contains(boundingRectangle, tmp)) {
