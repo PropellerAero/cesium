@@ -66,14 +66,8 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
   tmp = Cartographic.fromCartesian(result, Ellipsoid.WGS84, tmp);
   if (tmp && typeof tmp !== "undefinded") {
     if (Rectangle.contains(boundingRectangle, tmp)) {
-      if (tmp.height < minElevation) {
-        tmp.height = minElevation;
-        return Cartographic.toCartesian(tmp);
-      } else if (tmp.height > maxElevation) {
-        tmp.height = maxElevation;
-        return Cartographic.toCartesian(tmp);
-      }
-      return result;
+      tmp.height = CesiumMath.clamp(tmp.height, minElevation, maxElevation);
+      return Cartographic.toCartesian(tmp);
     }
     var minLong = boundingRectangle.east;
     var maxLong = boundingRectangle.west;
@@ -87,13 +81,8 @@ function clampRectangle(boundingRectangle, position, result, minElevation) {
     }
     tmp.longitude = CesiumMath.clamp(tmp.longitude, minLong, maxLong);
     tmp.latitude = CesiumMath.clamp(tmp.longitude, minLat, maxLat);
-    if (tmp.height < minElevation) {
-      tmp.height = minElevation;
-    } else if (tmp.height > maxElevation) {
-      tmp.height = maxElevation;
-    }
-    result = Cartographic.toCartesian(tmp, Ellipsoid.WGS84, result);
-    return result;
+    tmp.height = CesiumMath.clamp(tmp.height, minElevation, maxElevation);
+    return Cartographic.toCartesian(tmp, Ellipsoid.WGS84, result);
   }
   return result;
 }
