@@ -29,12 +29,13 @@ import CameraFlightPath from "./CameraFlightPath.js";
 import MapMode2D from "./MapMode2D.js";
 import SceneMode from "./SceneMode.js";
 
+//PROPELLER HACK
 function clampSphere(sphere, position, result) {
   if (
     !defined(sphere) ||
     !defined(position) ||
     !position ||
-    position == Cartesian3.ZERO
+    position === Cartesian3.ZERO
   ) {
     return position;
   }
@@ -44,47 +45,12 @@ function clampSphere(sphere, position, result) {
     return result;
   }
   var dirV = new Cartesian3();
-
-  dirV = Cartesian3.subtract(result, sphere.center, dirV);
-  dirV = Cartesian3.normalize(dirV, dirV);
+  dirV = Cartesian3.normalize(
+    Cartesian3.subtract(result, sphere.center, dirV),
+    dirV
+  );
   dirV = Cartesian3.multiplyByScalar(dirV, sphere.radius, dirV);
   return Cartesian3.add(sphere.center, dirV, result);
-}
-
-function clampRectangle(boundingRectangle, position, result, minElevation) {
-  if (
-    !defined(boundingRectangle) ||
-    !defined(position) ||
-    !position ||
-    position.equals(Cartesian3.Zero)
-  ) {
-    return position;
-  }
-  result = Cartesian3.clone(position, result);
-  var tmp = new Cartographic();
-  var maxElevation = minElevation + 1000;
-  tmp = Cartographic.fromCartesian(result, Ellipsoid.WGS84, tmp);
-  if (tmp && typeof tmp !== "undefinded") {
-    if (Rectangle.contains(boundingRectangle, tmp)) {
-      tmp.height = CesiumMath.clamp(tmp.height, minElevation, maxElevation);
-      return Cartographic.toCartesian(tmp);
-    }
-    var minLong = boundingRectangle.east;
-    var maxLong = boundingRectangle.west;
-    if (minLong > maxLong) {
-      minLong = maxLong + ((maxLong = minLong), 0);
-    }
-    var minLat = boundingRectangle.south;
-    var maxLat = boundingRectangle.north;
-    if (minLat > maxLat) {
-      minLat = maxLat + ((maxLat = minLat), 0);
-    }
-    tmp.longitude = CesiumMath.clamp(tmp.longitude, minLong, maxLong);
-    tmp.latitude = CesiumMath.clamp(tmp.longitude, minLat, maxLat);
-    tmp.height = CesiumMath.clamp(tmp.height, minElevation, maxElevation);
-    return Cartographic.toCartesian(tmp, Ellipsoid.WGS84, result);
-  }
-  return result;
 }
 
 /**
@@ -126,10 +92,8 @@ function Camera(scene) {
   //>>includeEnd('debug');
   this._scene = scene;
   //PROPELLER HACK
-  this.boundingObject = undefined;
   this.boundingSphere = undefined;
-  this.boundingHeight = undefined;
-  this.boundingRectangle = undefined;
+
   //PROPELLER HACK
   this._transform = Matrix4.clone(Matrix4.IDENTITY);
   this._invTransform = Matrix4.clone(Matrix4.IDENTITY);
@@ -721,13 +685,6 @@ function updateMembers(camera) {
           camera.boundingSphere,
           camera._positionWC,
           camera._positionWC
-        );
-      } else if (camera.boundingRectangle) {
-        clampRectangle(
-          camera.boundingRectangle,
-          camera._positionWC,
-          camera._positionWC,
-          camera.boundingHeight
         );
       }
       camera._positionCartographic = camera._projection.ellipsoid.cartesianToCartographic(
@@ -1509,13 +1466,6 @@ Camera.prototype.setView = function (options) {
   if (typeof destination !== "undefined") {
     if (this.boundingSphere) {
       clampSphere(this.boundingSphere, destination, destination);
-    } else if (this.boundingRectangle) {
-      clampRectangle(
-        this.boundingRectangle,
-        destination,
-        destination,
-        this.boundingHeight
-      );
     }
   }
   if (defined(orientation.direction)) {
