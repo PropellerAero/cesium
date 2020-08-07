@@ -1136,7 +1136,6 @@ Camera.prototype._setTransform = function (transform) {
   updateMembers(this);
   var inverse = this._actualInvTransform;
 
-  //back in camera space
   Matrix4.multiplyByPoint(inverse, position, this.position);
   Matrix4.multiplyByPointAsVector(inverse, direction, this.direction);
   Matrix4.multiplyByPointAsVector(inverse, up, this.up);
@@ -2471,7 +2470,7 @@ function rectangleCameraPosition3D(camera, rectangle, result, updateCamera) {
   // Find the midpoint latitude.
   //
   // EllipsoidGeodesic will fail if the north and south edges are very close to being on opposite sides of the ellipsoid.
-  // Ideally we'd just call EllipsoidGeodesic.setEndPoints and var it throw when it detects this case, but sadly it doesn't
+  // Ideally we'd just call EllipsoidGeodesic.setEndPoints and let it throw when it detects this case, but sadly it doesn't
   // even look for this case in optimized builds, so we have to test for it here instead.
   //
   // Fortunately, this case can only happen (here) when north is very close to the north pole and south is very close to the south pole,
