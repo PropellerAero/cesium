@@ -94,7 +94,6 @@ function Camera(scene) {
   //PROPELLER HACK
   this.boundingSphere = undefined;
 
-  //PROPELLER HACK
   this._transform = Matrix4.clone(Matrix4.IDENTITY);
   this._invTransform = Matrix4.clone(Matrix4.IDENTITY);
   this._actualTransform = Matrix4.clone(Matrix4.IDENTITY);
