@@ -35,7 +35,7 @@ function clampSphere(sphere, position, result) {
     !defined(sphere) ||
     !defined(position) ||
     !position ||
-    position === Cartesian3.ZERO
+    Cartesian3.equals(position, Cartesian3.ZERO)
   ) {
     return position;
   }
@@ -44,13 +44,17 @@ function clampSphere(sphere, position, result) {
   if (Cartesian3.distance(result, sphere.center) <= sphere.radius) {
     return result;
   }
-  var dirV = new Cartesian3();
-  dirV = Cartesian3.normalize(
-    Cartesian3.subtract(result, sphere.center, dirV),
-    dirV
+  var directionVector = new Cartesian3();
+  directionVector = Cartesian3.normalize(
+    Cartesian3.subtract(result, sphere.center, directionVector),
+    directionVector
   );
-  dirV = Cartesian3.multiplyByScalar(dirV, sphere.radius, dirV);
-  return Cartesian3.add(sphere.center, dirV, result);
+  directionVector = Cartesian3.multiplyByScalar(
+    directionVector,
+    sphere.radius,
+    directionVector
+  );
+  return Cartesian3.add(sphere.center, directionVector, result);
 }
 
 /**
