@@ -29,6 +29,34 @@ import CameraFlightPath from "./CameraFlightPath.js";
 import MapMode2D from "./MapMode2D.js";
 import SceneMode from "./SceneMode.js";
 
+//PROPELLER HACK
+function clampSphere(sphere, position, result) {
+  if (
+    !defined(sphere) ||
+    !defined(position) ||
+    !position ||
+    Cartesian3.equals(position, Cartesian3.ZERO)
+  ) {
+    return position;
+  }
+
+  result = Cartesian3.clone(position, result);
+  if (Cartesian3.distance(result, sphere.center) <= sphere.radius) {
+    return result;
+  }
+  var directionVector = new Cartesian3();
+  directionVector = Cartesian3.normalize(
+    Cartesian3.subtract(result, sphere.center, directionVector),
+    directionVector
+  );
+  directionVector = Cartesian3.multiplyByScalar(
+    directionVector,
+    sphere.radius,
+    directionVector
+  );
+  return Cartesian3.add(sphere.center, directionVector, result);
+}
+
 /**
  * The camera is defined by a position, orientation, and view frustum.
  * <br /><br />
@@ -67,6 +95,8 @@ function Camera(scene) {
   }
   //>>includeEnd('debug');
   this._scene = scene;
+  //PROPELLER HACK
+  this.boundingSphere = undefined;
 
   this._transform = Matrix4.clone(Matrix4.IDENTITY);
   this._invTransform = Matrix4.clone(Matrix4.IDENTITY);
@@ -579,7 +609,6 @@ var scratchCartesian = new Cartesian3();
 
 function updateMembers(camera) {
   var mode = camera._mode;
-
   var heightChanged = false;
   var height = 0.0;
   if (mode === SceneMode.SCENE2D) {
@@ -645,16 +674,22 @@ function updateMembers(camera) {
   }
 
   var transform = camera._actualTransform;
-
   if (positionChanged || transformChanged) {
     camera._positionWC = Matrix4.multiplyByPoint(
       transform,
       position,
       camera._positionWC
     );
-
     // Compute the Cartographic position of the camera.
     if (mode === SceneMode.SCENE3D || mode === SceneMode.MORPHING) {
+      //PROPELLER HACK
+      if (camera.boundingSphere) {
+        clampSphere(
+          camera.boundingSphere,
+          camera._positionWC,
+          camera._positionWC
+        );
+      }
       camera._positionCartographic = camera._projection.ellipsoid.cartesianToCartographic(
         camera._positionWC,
         camera._positionCartographic
@@ -1057,8 +1092,8 @@ Camera.prototype.update = function (mode) {
       "A PerspectiveFrustum or OrthographicFrustum is required in 3D and Columbus view"
     );
   }
-  //>>includeEnd('debug');
 
+  //>>includeEnd('debug');
   var updateFrustum = false;
   if (mode !== this._mode) {
     this._mode = mode;
@@ -1417,7 +1452,6 @@ Camera.prototype.setView = function (options) {
   if (defined(options.endTransform)) {
     this._setTransform(options.endTransform);
   }
-
   var convert = defaultValue(options.convert, true);
   var destination = defaultValue(
     options.destination,
@@ -1430,7 +1464,12 @@ Camera.prototype.setView = function (options) {
     );
     convert = false;
   }
-
+  //PROPELLER HACK
+  if (typeof destination !== "undefined") {
+    if (this.boundingSphere) {
+      clampSphere(this.boundingSphere, destination, destination);
+    }
+  }
   if (defined(orientation.direction)) {
     orientation = directionUpToHeadingPitchRoll(
       this,
@@ -1439,7 +1478,6 @@ Camera.prototype.setView = function (options) {
       scratchSetViewOptions.orientation
     );
   }
-
   scratchHpr.heading = defaultValue(orientation.heading, 0.0);
   scratchHpr.pitch = defaultValue(orientation.pitch, -CesiumMath.PI_OVER_TWO);
   scratchHpr.roll = defaultValue(orientation.roll, 0.0);
@@ -1452,7 +1490,6 @@ Camera.prototype.setView = function (options) {
     setViewCV(this, destination, scratchHpr, convert);
   }
 };
-
 var pitchScratch = new Cartesian3();
 /**
  * Fly the camera to the home view.  Use {@link Camera#.DEFAULT_VIEW_RECTANGLE} to set
@@ -1695,7 +1732,6 @@ Camera.prototype.move = function (direction, amount) {
     throw new DeveloperError("direction is required.");
   }
   //>>includeEnd('debug');
-
   var cameraPosition = this.position;
   Cartesian3.multiplyByScalar(direction, amount, moveScratch);
   Cartesian3.add(cameraPosition, moveScratch, cameraPosition);
@@ -1716,7 +1752,6 @@ Camera.prototype.move = function (direction, amount) {
  */
 Camera.prototype.moveForward = function (amount) {
   amount = defaultValue(amount, this.defaultMoveAmount);
-
   if (this._mode === SceneMode.SCENE2D) {
     // 2D mode
     zoom2D(this, amount);
@@ -1737,7 +1772,6 @@ Camera.prototype.moveForward = function (amount) {
  */
 Camera.prototype.moveBackward = function (amount) {
   amount = defaultValue(amount, this.defaultMoveAmount);
-
   if (this._mode === SceneMode.SCENE2D) {
     // 2D mode
     zoom2D(this, -amount);
@@ -1807,7 +1841,6 @@ Camera.prototype.moveLeft = function (amount) {
  */
 Camera.prototype.lookLeft = function (amount) {
   amount = defaultValue(amount, this.defaultLookAmount);
-
   // only want view of map to change in 3D mode, 2D visual is incorrect when look changes
   if (this._mode !== SceneMode.SCENE2D) {
     this.look(this.up, -amount);
