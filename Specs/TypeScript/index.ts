@@ -97,7 +97,7 @@ import {
   WallOutlineGeometry,
   WebMapServiceImageryProvider,
   WebMapTileServiceImageryProvider,
-} from "cesium";
+} from "@propelleraero/cesium";
 
 // Verify ImageryProvider instances conform to the expected interface
 let imageryProvider: ImageryProvider;
