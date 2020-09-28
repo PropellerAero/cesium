@@ -3,6 +3,6 @@
   command: yarn test
 
 - name: Build and Publish
-  tag: ^(release-\d*.\d*.\d*.*)
+  tag: ^(propeller-\d*.\d*.\d*.*)
   service: builder
   command: ./deployment/publish.sh
