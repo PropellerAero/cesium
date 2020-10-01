@@ -97,6 +97,8 @@
     }
   },
   "scripts": {
+    "codeship:decrypt": "./deployment/crypto.sh decrypt ./deployment/encrypted ./deployment/secrets",
+    "codeship:encrypt": "./deployment/crypto.sh encrypt ./deployment/secrets ./deployment/encrypted",
     "convertToModules": "gulp convertToModules",
     "start": "node server.cjs",
     "startPublic": "node server.cjs --public",
