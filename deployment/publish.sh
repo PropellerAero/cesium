@@ -21,4 +21,7 @@ yarn release
 
 npm publish
 
-# git tag $PACKAGE_VERSION && git push origin $PACKAGE_VERSION
+TAG_NAME="propeller-$PACKAGE_VERSION"
+echo "Tagging as ${TAG_NAME}"
+tag $TAG_NAME && git push origin $TAG_NAME
+
