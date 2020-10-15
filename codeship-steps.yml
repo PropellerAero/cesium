@@ -2,7 +2,7 @@
   service: builder
   command: yarn test
 
-- name: Build and Deploy
-  tag: master
+- name: Build and Publish
+  tag: ^(propeller-\d*.\d*.\d*.*)
   service: builder
   command: ./deployment/publish.sh
