@@ -30,9 +30,6 @@ To maintain this going forward, use a `git rebase`.
 git checkout master
 git pull
 
-# Work from a branch for now
-git checkout -b 'my-update-branch'
-
 # Fetch the upstream tags
 git fetch upstream --tags
 
@@ -40,12 +37,8 @@ git fetch upstream --tags
 # Squash all propeller commits into a single commit
 git rebase -i 1.74
 
-# Once you're certain your branch is working as expected
-# E.g. you've tested by yarn link into visualiser
-# Then reset master to match your branch
-git checkout master
-git reset my-update-branch --hard
+# Fix all the broken stuff :)
 
-# Now you can run the release script to tag and publish
-./release.sh
+# You've just re-written the history so you'll have to force
+git push origin master --force
 ```
