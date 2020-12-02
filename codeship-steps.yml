@@ -1,0 +1,12 @@
+- name: Test
+  service: builder
+  command: yarn test
+
+- name: Build
+  service: builder
+  command: yarn release
+
+- name: Publish
+  tag: master
+  service: publisher
+  command: publish-javascript-package --prefix-tag propeller
