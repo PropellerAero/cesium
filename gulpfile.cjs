@@ -432,6 +432,7 @@ gulp.task("generateDocumentation-watch", function () {
 gulp.task(
   "release",
   gulp.series(
+    "prepare",
     "build",
     "build-ts",
     combine,
@@ -1605,7 +1606,7 @@ function createTypeScriptDefinitions() {
 
   // Wrap the source to actually be inside of a declared cesium module
   // and add any workaround and private utility types.
-  source = `declare module "cesium" {
+  source = `declare module "@propelleraero/cesium" {
 
 /**
  * Private interfaces to support PropertyBag being a dictionary-like object.
@@ -1630,7 +1631,7 @@ ${source}
     const assignmentName = path.basename(file, path.extname(file));
     if (publicModules.has(assignmentName)) {
       publicModules.delete(assignmentName);
-      source += `declare module "cesium/Source/${moduleId}" { import { ${assignmentName} } from 'cesium'; export default ${assignmentName}; }\n`;
+      source += `declare module "@propelleraero/cesium/Source/${moduleId}" { import { ${assignmentName} } from '@propelleraero/cesium'; export default ${assignmentName}; }\n`;
     }
   });
 
