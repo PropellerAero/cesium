@@ -1,5 +1,6 @@
 import when from "../ThirdParty/when.js";
 import Check from "./Check.js";
+import defaultValue from "./defaultValue.js";
 
 /**
  * Initiates a terrain height query for an array of {@link Cartographic} positions by
@@ -37,7 +38,13 @@ import Check from "./Check.js";
  *     // updatedPositions is just a reference to positions.
  * });
  */
-function sampleTerrain(terrainProvider, level, positions) {
+// PROPELLER HACK
+function sampleTerrain(
+  terrainProvider,
+  level,
+  positions,
+  failResultOnTileFail
+) {
   //>>includeStart('debug', pragmas.debug);
   Check.typeOf.object("terrainProvider", terrainProvider);
   Check.typeOf.number("level", level);
@@ -45,11 +52,12 @@ function sampleTerrain(terrainProvider, level, positions) {
   //>>includeEnd('debug');
 
   return terrainProvider.readyPromise.then(function () {
-    return doSampling(terrainProvider, level, positions);
+    // PROPELLER HACK
+    return doSampling(terrainProvider, level, positions, failResultOnTileFail);
   });
 }
-
-function doSampling(terrainProvider, level, positions) {
+// PROPELLER HACK
+function doSampling(terrainProvider, level, positions, failResultOnTileFail) {
   var tilingScheme = terrainProvider.tilingScheme;
 
   var i;
@@ -88,9 +96,17 @@ function doSampling(terrainProvider, level, positions) {
       tileRequest.y,
       tileRequest.level
     );
-    var tilePromise = requestPromise
-      .then(createInterpolateFunction(tileRequest))
-      .otherwise(createMarkFailedFunction(tileRequest));
+    var tilePromise;
+
+    // PROPELLER HACK: Allow fail on requestTileGeometry fail
+
+    if (failResultOnTileFail) {
+      tilePromise = requestPromise.then(createInterpolateFunction(tileRequest));
+    } else {
+      tilePromise = requestPromise
+        .then(createInterpolateFunction(tileRequest))
+        .otherwise(createMarkFailedFunction(tileRequest));
+    }
     tilePromises.push(tilePromise);
   }
 
