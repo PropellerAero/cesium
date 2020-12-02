@@ -22,7 +22,8 @@ import { mkdirp } from "mkdirp";
 
 // Determines the scope of the workspace packages. If the scope is set to cesium, the workspaces should be @cesium/engine.
 // This should match the scope of the dependencies of the root level package.json.
-const scope = "cesium";
+//PROPELLER HACK
+const scope = "propelleraero";
 
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
@@ -262,7 +263,6 @@ const workspaceSourceFiles = {
  */
 function generateDeclaration(workspace, file) {
   let assignmentName = path.basename(file, path.extname(file));
-
   let moduleId = file;
   moduleId = filePathToModuleId(moduleId);
 
@@ -270,6 +270,11 @@ function generateDeclaration(workspace, file) {
     assignmentName = `_shaders${assignmentName}`;
   }
   assignmentName = assignmentName.replace(/(\.|-)/g, "_");
+  //PROPELLER HACK
+  if (workspace === "engine" || workspace === "widgets") {
+    return `export { ${assignmentName} } from '@${scope}/cesium-${workspace}';`;
+  }
+
   return `export { ${assignmentName} } from '@${scope}/${workspace}';`;
 }
 
@@ -283,6 +288,7 @@ export async function createCesiumJs() {
   // Iterate over each workspace and generate declarations for each file.
   for (const workspace of Object.keys(workspaceSourceFiles)) {
     const files = await globby(workspaceSourceFiles[workspace]);
+    //PROPELLER HACK
     const declarations = files.map((file) =>
       generateDeclaration(workspace, file)
     );
@@ -305,7 +311,6 @@ const workspaceSpecFiles = {
  */
 export async function createCombinedSpecList() {
   let contents = `export const VERSION = '${version}';\n`;
-
   for (const workspace of Object.keys(workspaceSpecFiles)) {
     const files = await globby(workspaceSpecFiles[workspace]);
     for (const file of files) {
@@ -608,7 +613,8 @@ const externalResolvePlugin = {
       };
     });
 
-    build.onResolve({ filter: /@cesium/ }, () => {
+    // PROPELLER HACK
+    build.onResolve({ filter: /@propelleraero/ }, () => {
       return {
         path: "Cesium",
         namespace: "external-cesium",
@@ -621,7 +627,10 @@ const externalResolvePlugin = {
         namespace: "external-cesium",
       },
       () => {
-        const contents = `module.exports = Cesium`;
+        //PROPELLER HACK
+        //const contents = `module.exports = Cesium`;
+        const contents = `module.exports = "@propelleraero/cesium"`;
+
         return {
           contents,
         };
@@ -864,6 +873,7 @@ export async function createIndexJs(workspace) {
 
   const files = await globby(workspaceSources);
   files.forEach(function (file) {
+    //PROPELLER HACK
     file = path.relative(`packages/${workspace}`, file);
 
     let moduleId = file;
@@ -879,6 +889,7 @@ export async function createIndexJs(workspace) {
     contents += `export { default as ${assignmentName} } from './${moduleId}.js';${EOL}`;
   });
 
+  //PROPELLER HACK
   await writeFile(`packages/${workspace}/index.js`, contents, {
     encoding: "utf-8",
   });
@@ -1048,7 +1059,7 @@ export const buildWidgets = async (options) => {
   // Generate Build folder to place build artifacts.
   mkdirp.sync("packages/widgets/Build");
 
-  // Create index.js
+  //PROPELLER HACK
   await createIndexJs("widgets");
 
   // Create SpecList.js
@@ -1168,7 +1179,6 @@ export async function buildCesium(options) {
   await copyWidgetsAssets(path.join(outputDirectory, "Widgets"));
 
   // Copy static assets to Source folder.
-
   await copyEngineAssets("Source");
   await copyFiles(
     ["packages/engine/Source/ThirdParty/**/*.js"],

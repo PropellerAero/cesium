@@ -1,4 +1,4 @@
-import { defined } from "@cesium/engine";
+import { defined } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function equalsMethodEqualityTester(a, b) {
   let to_run;

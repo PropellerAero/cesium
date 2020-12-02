@@ -1,4 +1,4 @@
-import { clone, defaultValue, Context } from "@cesium/engine";
+import { clone, defaultValue, Context } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 import createCanvas from "./createCanvas.js";
 import createFrameState from "./createFrameState.js";

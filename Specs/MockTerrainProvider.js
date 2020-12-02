@@ -7,7 +7,7 @@ import {
   HeightmapTerrainData,
   RuntimeError,
   TerrainProvider,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function MockTerrainProvider() {
   this.tilingScheme = new GeographicTilingScheme();

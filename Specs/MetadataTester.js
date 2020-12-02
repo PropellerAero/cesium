@@ -9,7 +9,7 @@ import {
   MetadataEnum,
   MetadataTable,
   MetadataType,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function MetadataTester() {}
 

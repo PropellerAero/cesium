@@ -1,4 +1,4 @@
-import { FeatureDetection } from "@cesium/engine";
+import { FeatureDetection } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function isTypedArray(o) {
   return FeatureDetection.typedArrayTypes.some(function (type) {

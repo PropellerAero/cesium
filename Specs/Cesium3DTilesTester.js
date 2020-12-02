@@ -7,7 +7,7 @@ import {
   Cesium3DTileContentFactory,
   Cesium3DTileset,
   TileBoundingSphere,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 import pollToPromise from "./pollToPromise.js";
 

@@ -1,4 +1,9 @@
-import { defined, destroyObject, Pass, RenderState } from "@cesium/engine";
+import {
+  defined,
+  destroyObject,
+  Pass,
+  RenderState,
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 const ViewportPrimitive = function (fragmentShader) {
   this._fs = fragmentShader;

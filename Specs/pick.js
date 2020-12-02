@@ -8,7 +8,7 @@ import {
   FrameState,
   JobScheduler,
   PickFramebuffer,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function executeCommands(context, passState, commands) {
   const length = commands.length;

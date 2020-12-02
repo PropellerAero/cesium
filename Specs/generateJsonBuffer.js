@@ -1,4 +1,4 @@
-import { defaultValue } from "@cesium/engine";
+import { defaultValue } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function generateJsonBuffer(json, byteOffset, boundary) {
   let i;

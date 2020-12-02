@@ -4,7 +4,7 @@ import {
   defaultValue,
   defined,
   Scene,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 import createCanvas from "./createCanvas.js";
 import getWebGLStub from "./getWebGLStub.js";

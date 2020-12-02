@@ -1,4 +1,8 @@
-import { Event, EntityCluster, EntityCollection } from "@cesium/engine";
+import {
+  Event,
+  EntityCluster,
+  EntityCollection,
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function MockDataSource() {
   //Values to be fiddled with by the test

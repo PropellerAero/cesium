@@ -1,0 +1,30 @@
+- name: Test
+  service: builder
+  encrypted_dockercfg_path: deployment/encrypted/dockerhub_dockercfg.sec
+  command: yarn test
+
+- name: Build
+  service: builder
+  encrypted_dockercfg_path: deployment/encrypted/dockerhub_dockercfg.sec
+  command: yarn release
+
+- name: Publish/Deploy
+  type: parallel
+  steps:
+  - name: Publish top level
+    tag: main
+    service: publisher
+    dockercfg_service: dockercfg-production
+    command: publish-javascript-package --code-dir . --git-tag-prefix propeller
+  
+  - name: Publish engine
+    tag: main
+    service: publisher
+    dockercfg_service: dockercfg-production
+    command: publish-javascript-package --code-dir /packages/engine
+
+  - name: Publish widget
+    tag: main
+    service: publisher
+    dockercfg_service: dockercfg-production
+    command: publish-javascript-package --code-dir /packages/widgets

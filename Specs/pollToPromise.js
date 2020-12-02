@@ -1,4 +1,4 @@
-import { defaultValue, getTimestamp } from "@cesium/engine";
+import { defaultValue, getTimestamp } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function pollToPromise(f, options) {
   options = defaultValue(options, defaultValue.EMPTY_OBJECT);

@@ -5,7 +5,7 @@ import {
   GeographicTilingScheme,
   Resource,
   RuntimeError,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function MockImageryProvider() {
   this.tilingScheme = new GeographicTilingScheme();

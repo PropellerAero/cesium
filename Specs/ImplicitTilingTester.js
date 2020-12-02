@@ -1,4 +1,4 @@
-import { defined, defaultValue } from "@cesium/engine";
+import { defined, defaultValue } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 import concatTypedArrays from "./concatTypedArrays.js";
 import MetadataTester from "./MetadataTester.js";
 

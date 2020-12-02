@@ -1,4 +1,8 @@
-import { defaultValue, defined, Math as CesiumMath } from "@cesium/engine";
+import {
+  defaultValue,
+  defined,
+  Math as CesiumMath,
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function createPackableSpecs(packable, instance, packedInstance, namePrefix) {
   namePrefix = defaultValue(namePrefix, "");

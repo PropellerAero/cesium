@@ -1,4 +1,4 @@
-import { defaultValue, FeatureDetection } from "@cesium/engine";
+import { defaultValue, FeatureDetection } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function createMouseEvent(type, options) {
   options = defaultValue(options, defaultValue.EMPTY_OBJECT);

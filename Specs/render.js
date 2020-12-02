@@ -1,4 +1,9 @@
-import { defined, Intersect, Pass, SceneMode } from "@cesium/engine";
+import {
+  defined,
+  Intersect,
+  Pass,
+  SceneMode,
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function executeCommands(frameState, commands) {
   let commandsExecuted = 0;

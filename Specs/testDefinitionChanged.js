@@ -1,4 +1,4 @@
-import { ConstantProperty } from "@cesium/engine";
+import { ConstantProperty } from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function testDefinitionChanged(property, name, value1, value2) {
   const listener = jasmine.createSpy("listener");

@@ -4,13 +4,19 @@
 const path = require("path");
 
 // If in 'production' mode, use the combined/minified/optimized version of Cesium
-if (process.env.NODE_ENV === "production") {
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "staging" ||
+  process.env.NODE_ENV === "dev"
+) {
   // eslint-disable-next-line global-require
   module.exports = require(path.join(__dirname, "Build/Cesium/index.cjs"));
-  return;
+  //PROPELLER HACK
+  //return;
+} else {
+  // eslint-disable-next-line global-require
+  module.exports = require(path.join(
+    __dirname,
+    "Build/CesiumUnminified/index.cjs"
+  ));
 }
-
-module.exports = require(path.join(
-  __dirname,
-  "Build/CesiumUnminified/index.cjs"
-));

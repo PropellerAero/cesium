@@ -52,7 +52,8 @@ import {
 
 // Determines the scope of the workspace packages. If the scope is set to cesium, the workspaces should be @cesium/engine.
 // This should match the scope of the dependencies of the root level package.json.
-const scope = "cesium";
+//PROPELLER HACK
+const scope = "propelleraero";
 
 const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
@@ -276,10 +277,16 @@ export async function buildTs() {
 
   // Generate types for passed packages in order.
   const importModules = {};
+  console.error("workspaces: ", workspaces);
+  // ["packages/engine", "packages/widgets"];
+
   for (const workspace of workspaces) {
     const directory = workspace
       .replace(`@${scope}/`, "")
       .replace(`packages/`, "");
+
+    //PROPELLER HACK
+
     const workspaceModules = await generateTypeScriptDefinitions(
       directory,
       `packages/${directory}/index.d.ts`,
@@ -1450,6 +1457,7 @@ export async function runCoverage(options) {
     },
     { promiseConfig: true, throwErrors: true }
   );
+  console.error("config:", config);
 
   return new Promise((resolve, reject) => {
     const server = new karma.Server(config, function doneCallback(e) {
@@ -1650,6 +1658,8 @@ export async function test() {
     { promiseConfig: true, throwErrors: true }
   );
 
+  console.log(workspace, "____config:", config);
+
   return new Promise((resolve, reject) => {
     const server = new karma.Server(config, function doneCallback(exitCode) {
       if (failTaskOnError && exitCode) {
@@ -1734,7 +1744,8 @@ function generateTypeScriptDefinitions(
 
   // Wrap the source to actually be inside of a declared cesium module
   // and add any workaround and private utility types.
-  source = `declare module "@${scope}/${workspaceName}" {
+  //PROPELLER HACK
+  source = `declare module "@${scope}/cesium-${workspaceName}" {
 ${source}
 }
 `;
@@ -1927,7 +1938,8 @@ function createTypeScriptDefinitions() {
 
   // Wrap the source to actually be inside of a declared cesium module
   // and add any workaround and private utility types.
-  source = `declare module "cesium" {
+  // PROPELLER HACK
+  source = `declare module "@propelleraero/cesium" {
 ${source}
 }
 

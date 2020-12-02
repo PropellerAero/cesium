@@ -5,7 +5,7 @@ import {
   GeographicProjection,
   Matrix4,
   Camera,
-} from "@cesium/engine";
+} from "@propelleraero/cesium-engine"; // PROPELLER HACK
 
 function MockScene(canvas) {
   canvas = defaultValue(canvas, {
