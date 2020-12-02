@@ -59,3 +59,7 @@ yarn.lock
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/shelf
+
+# Codeship
+deployment/secrets
+*.aes
