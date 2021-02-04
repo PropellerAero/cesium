@@ -2148,7 +2148,7 @@ function addTileDebugLabel(tile, tileset, position) {
   }
 
   if (tileset.debugShowUrl) {
-    labelString += "\nUrl: " + tile._header.content.uri;
+    labelString += "\nUrl: " + tile._header.content.url;
     attributes++;
   }
 
