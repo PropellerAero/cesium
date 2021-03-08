@@ -9,4 +9,4 @@
 - name: Publish
   tag: master
   service: publisher
-  command: publish-javascript-package --prefix-tag propeller
+  command: publish-javascript-package --git-tag-prefix propeller
