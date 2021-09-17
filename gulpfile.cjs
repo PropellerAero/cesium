@@ -427,6 +427,7 @@ gulp.task("generateDocumentation-watch", function () {
 gulp.task(
   "release",
   gulp.series(
+    "prepare",
     "build",
     "build-ts",
     combine,
