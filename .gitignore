@@ -60,4 +60,4 @@ yarn.lock
 
 # Codeship
 deployment/secrets
-deployment/*.aes
+*.aes
