@@ -1891,6 +1891,8 @@ Scene.prototype.updateFrameState = function () {
   );
   frameState.occluder = getOccluder(this);
   frameState.minimumTerrainHeight = 0.0;
+  // PROPELLER HACK
+  frameState.minimumTerrainHeight = -500.0;
   frameState.minimumDisableDepthTestDistance = this._minimumDisableDepthTestDistance;
   frameState.invertClassification = this.invertClassification;
   frameState.useLogDepth =
