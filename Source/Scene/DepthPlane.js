@@ -17,7 +17,8 @@ import VertexArray from "../Renderer/VertexArray.js";
 import DepthPlaneFS from "../Shaders/DepthPlaneFS.js";
 import DepthPlaneVS from "../Shaders/DepthPlaneVS.js";
 import SceneMode from "./SceneMode.js";
-import Ellipsoid from "../Core/Ellipsoid.js";
+import Ellipsoid from "../Core/Ellipsoid.js"
+
 
 /**
  * @private
@@ -127,6 +128,7 @@ DepthPlane.prototype.update = function (frameState) {
     r.y + minimumTerrainHeight,
     r.z + minimumTerrainHeight
   );
+
 
   var useLogDepth = frameState.useLogDepth;
 
