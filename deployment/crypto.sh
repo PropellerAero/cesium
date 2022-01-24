@@ -10,15 +10,14 @@
 #   ./crypto decrypt folder destination
 #
 
+set -e
+
 usage() {
     echo $"Usage: `basename $0` <encrypt|decrypt> <input> [output]"
     exit 1
 }
 
-DEPLOYMENT_PATH=$(dirname $0)
-ENCRYPTED_PATH="$DEPLOYMENT_PATH/encrypted"
-SECRETS_PATH="$DEPLOYMENT_PATH/secrets"
-KEY_PATH="$DEPLOYMENT_PATH/codeship.aes" # todo: getopts --key-path
+KEY_PATH="codeship.aes" # todo: getopts --key-path
 
 ARGC=$#
 CMD=$1
@@ -56,7 +55,7 @@ fi
 # Check if we have the key
 if [ ! -f "$KEY_PATH" ]
 then
-  echo "Key file missing. Download the project's AES key from Codeship and copy it to ./deployment directory."
+  echo "Key file missing. Download the project's AES key from Codeship and copy it to the project's root directory."
   exit 1
 fi
 
