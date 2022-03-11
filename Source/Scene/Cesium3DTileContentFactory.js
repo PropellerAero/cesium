@@ -1,7 +1,7 @@
 import Batched3DModel3DTileContent from "./Batched3DModel3DTileContent.js";
 import Composite3DTileContent from "./Composite3DTileContent.js";
 import Geometry3DTileContent from "./Geometry3DTileContent.js";
-import Gltf3DTileContent from "./Gltf3DTileContent.js";
+import Gltf3DTileContent from "./Gltf3DTileContent.js"; // PROPELLER HACK
 import Implicit3DTileContent from "./Implicit3DTileContent.js";
 import Instanced3DModel3DTileContent from "./Instanced3DModel3DTileContent.js";
 import PointCloud3DTileContent from "./PointCloud3DTileContent.js";
@@ -9,7 +9,7 @@ import Tileset3DTileContent from "./Tileset3DTileContent.js";
 import Vector3DTileContent from "./Vector3DTileContent.js";
 import RuntimeError from "../Core/RuntimeError.js";
 import ModelExperimental3DTileContent from "./ModelExperimental/ModelExperimental3DTileContent.js";
-// PROPELLER HACK
+
 /**
  * Maps a tile's magic field in its header to a new content object for the tile's payload.
  *
