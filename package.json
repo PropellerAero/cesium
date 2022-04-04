@@ -1,6 +1,6 @@
 {
   "name": "@propelleraero/cesium",
-  "version": "1.92.0",
+  "version": "1.92.1",
   "description": "Propeller fork of Cesium",
   "homepage": "http://cesium.com/cesiumjs/",
   "license": "Apache-2.0",
@@ -38,7 +38,6 @@
       "require": "./index.cjs",
       "import": "./Source/Cesium.js"
     },
-    "./Source/ThirdParty/when": "./Source/ThirdParty/when.js",
     "./Source/Scene/CameraFlightPath": "./Source/Scene/CameraFlightPath.js"
   },
   "type": "module",
