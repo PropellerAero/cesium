@@ -32,3 +32,4 @@
 /web.config
 /deployment
 Thumbs.db
+**/Workers/package.json
