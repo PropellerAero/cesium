@@ -9,6 +9,7 @@
     "map",
     "globe"
   ],
+  "private" : true,
   "main": "index.js",
   "module": "index.js",
   "types": "index.d.ts",
