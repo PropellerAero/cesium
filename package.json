@@ -1,5 +1,5 @@
 {
-  "name": "@propelleraero/cesium",
+  "name": "propelleraerocesium",
   "version": "1.101.0",
   "description": "Propeller fork of Cesium",
   "homepage": "http://cesium.com/cesiumjs/",
