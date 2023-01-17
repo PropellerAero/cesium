@@ -53,11 +53,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "gulp build --workspace @propelleraero/engine",
-    "build-ts": "gulp buildTs --workspace propelleraero/engine",
-    "coverage": "gulp coverage --workspace propelleraero/engine",
-    "test": "gulp test --workspace @cesium/engine",
-    "postversion": "gulp postversion --workspace propelleraero/engine"
+    "build": "gulp build --workspace @propelleraero/cesiumengine",
+    "build-ts": "gulp buildTs --workspace propelleraero/cesiumengine",
+    "coverage": "gulp coverage --workspace propelleraero/cesiumengine",
+    "test": "gulp test --workspace @cesium/cesiumengine",
+    "postversion": "gulp postversion --workspace propelleraero/cesiumengine"
   },
   "repository": {
     "type": "git",

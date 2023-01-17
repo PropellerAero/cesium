@@ -1,5 +1,5 @@
 {
-  "name": "@propelleraero/widgets",
+  "name": "@propelleraero/cesiumwidgets",
   "version": "1.1.0",
   "description": "A widgets library for use with CesiumJS. CesiumJS is a JavaScript library for creating 3D globes and 2D maps in a web browser without a plugin.",
   "keywords": [
@@ -33,11 +33,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "gulp build --workspace @propelleraero/widgets",
-    "build-ts": "gulp buildTs --workspace @propelleraero/widgets",
-    "coverage": "gulp coverage --workspace @propelleraero/widgets",
-    "test": "gulp test --workspace @propelleraero/widgets",
-    "postversion": "gulp postversion --workspace @propelleraero/widgets"
+    "build": "gulp build --workspace @propelleraero/cesiumwidgets",
+    "build-ts": "gulp buildTs --workspace @propelleraero/cesiumwidgets",
+    "coverage": "gulp coverage --workspace @propelleraero/cesiumwidgets",
+    "test": "gulp test --workspace @propelleraero/cesiumwidgets",
+    "postversion": "gulp postversion --workspace @propelleraero/cesiumwidgets"
   },
   "repository": {
     "type": "git",
