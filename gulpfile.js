@@ -146,9 +146,9 @@ export async function build() {
   // Configure build target.
   const workspace = argv.workspace ? argv.workspace : undefined;
 
-  if (workspace === `@${scope}/engine`) {
+  if (workspace === `@${scope}/cesiumengine`) {
     return buildEngine(buildOptions);
-  } else if (workspace === `@${scope}/widgets`) {
+  } else if (workspace === `@${scope}/cesiumwidgets`) {
     return buildWidgets(buildOptions);
   }
 
