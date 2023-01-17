@@ -45,10 +45,10 @@ import {
 
 // Determines the scope of the workspace packages. If the scope is set to cesium, the workspaces should be @cesium/engine.
 // This should match the scope of the dependencies of the root level package.json.
-const scope = "propelleraero";//"cesium";
+const scope = "propelleraero/cesium";
 
 const require = createRequire(import.meta.url);
-console.error("require:", require)
+console.error("require:", require);
 const packageJson = require("./package.json");
 let version = packageJson.version;
 if (/\.0$/.test(version)) {
@@ -1894,7 +1894,7 @@ function createTypeScriptDefinitions() {
 
   // Wrap the source to actually be inside of a declared cesium module
   // and add any workaround and private utility types.
-  source = `declare module "cesium" {
+  source = `declare module "@propelleraero/cesium" {
 ${source}
 }
 
