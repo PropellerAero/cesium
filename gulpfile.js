@@ -48,7 +48,7 @@ import {
 const scope = "propelleraero";
 
 const require = createRequire(import.meta.url);
-console.error("require:", require);
+
 const packageJson = require("./package.json");
 let version = packageJson.version;
 if (/\.0$/.test(version)) {
@@ -145,6 +145,7 @@ export async function build() {
 
   // Configure build target.
   const workspace = argv.workspace ? argv.workspace : undefined;
+
 
   if (workspace === `@${scope}/cesiumengine`) {
     return buildEngine(buildOptions);
@@ -1511,10 +1512,11 @@ export async function test() {
   const includeName = argv.includeName ? argv.includeName : "";
 
   let workspace = argv.workspace;
+
   if (workspace) {
     workspace = workspace.replaceAll(`@${scope}/`, ``);
   }
-
+ 
   let browsers = ["Chrome"];
   if (argv.browsers) {
     browsers = argv.browsers.split(",");

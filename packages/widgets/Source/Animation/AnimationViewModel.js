@@ -5,7 +5,7 @@ import {
   defined,
   DeveloperError,
   JulianDate,
-} from "@cesium/engine";
+} from "@propelleraero/cesiumengine";
 
 import knockout from "../ThirdParty/knockout.js";
 import createCommand from "../createCommand.js";

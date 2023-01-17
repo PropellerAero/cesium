@@ -1276,8 +1276,10 @@ ${source}
 
     let moduleId = file;
     moduleId = filePathToModuleId(moduleId);
-
     const assignmentName = path.basename(file, path.extname(file));
+
+    console.lod("Declaring ", moduleId, assignmentName);
+
     if (publicModules.has(assignmentName)) {
       publicModules.delete(assignmentName);
       source += `declare module "@propelleraero/cesium/Source/${moduleId}" { import { ${assignmentName} } from '@propelleraero/cesium'; export default ${assignmentName}; }\n`;

@@ -25,7 +25,7 @@ import mkdirp from "mkdirp";
 const scope = "propelleraero";
 
 const require = createRequire(import.meta.url);
-console.error("require:", require);
+
 const packageJson = require("./package.json");
 let version = packageJson.version;
 if (/\.0$/.test(version)) {
@@ -180,44 +180,43 @@ export async function bundleCesiumJs(options) {
   buildConfig.logLevel = "info";
 
   const bundles = {};
-
   // Build ESM
   const esmBundle = await esbuild.build({
     ...buildConfig,
     format: "esm",
+    external:["@propelleraero/cesiumwidgets", "@propelleraero/cesiumengine"],
     outfile: path.join(options.path, "index.js"),
   });
-
   handleBuildWarnings(esmBundle);
-
   bundles.esmBundle = esmBundle;
 
   // Build IIFE
+ 
   if (options.iife) {
     const iifeBundle = await esbuild.build({
       ...buildConfig,
       format: "iife",
       globalName: "Cesium",
+      external: ["@propelleraero/cesiumengine", "@propelleraero/cesiumwidgets"], 
       outfile: path.join(options.path, "Cesium.js"),
     });
-
     handleBuildWarnings(iifeBundle);
 
     bundles.iifeBundle = iifeBundle;
   }
-
+  
   if (options.node) {
     const nodeBundle = await esbuild.build({
       ...buildConfig,
       format: "cjs",
       platform: "node",
+      external:["@propelleraero/cesiumwidgets", "@propelleraero/cesiumengine"],
       define: {
         // TransformStream is a browser-only implementation depended on by zip.js
         TransformStream: "null",
       },
       outfile: path.join(options.path, "index.cjs"),
     });
-
     handleBuildWarnings(nodeBundle);
     bundles.nodeBundle = nodeBundle;
   }
@@ -260,7 +259,7 @@ function generateDeclaration(workspace, file) {
     assignmentName = `_shaders${assignmentName}`;
   }
   assignmentName = assignmentName.replace(/(\.|-)/g, "_");
-  return `export { ${assignmentName} } from '@${scope}/${workspace}';`;
+  return `export { ${assignmentName} } from '@${scope}/${"cesium" + workspace}';`;
 }
 
 /**
@@ -276,9 +275,11 @@ export async function createCesiumJs() {
     const declarations = files.map((file) =>
       generateDeclaration(workspace, file)
     );
+    //console.error("declarations:", declarations)
     contents += declarations.join(`${EOL}`);
     contents += "\n";
   }
+
   await writeFile("Source/Cesium.js", contents, { encoding: "utf-8" });
 
   return contents;
@@ -844,7 +845,7 @@ export function bundleCombinedSpecs(options) {
     target: "es2020",
     outdir: path.join("Build", "Specs"),
     plugins: [externalResolvePlugin],
-    external: [`http`, `https`, `url`, `zlib`],
+    external: [`http`, `https`, `url`, `zlib`, `@propelleraero/cesiumengine`, `@propelleraero/cesiumwidgets`],
     incremental: options.incremental,
     write: options.write,
   });
@@ -969,18 +970,28 @@ async function bundleSpecs(options) {
     write: write,
   };
 
+//TODO
   // When bundling specs for a workspace, the spec-main.js and karma-main.js
   // are bundled separately since they use a different outbase than the workspace's SpecList.js.
-  await esbuild.build({
-    ...buildOptions,
-    entryPoints: ["Specs/spec-main.js", "Specs/karma-main.js"],
-  });
+  /*
+  try {
+    await esbuild.build({
+      ...buildOptions,
+      entryPoints: ["Specs/spec-main.js", "Specs/karma-main.js"],
+    });
+
+  console.error("10")
 
   return await esbuild.build({
     ...buildOptions,
     entryPoints: [options.specListFile],
     outbase: options.outbase,
   });
+    }
+  catch{
+
+  }
+  */
 }
 
 /**
@@ -1017,6 +1028,7 @@ export const buildEngine = async (options) => {
     inputES6: ["packages/engine/Source/WorkersES6/*.js"],
     path: "packages/engine/Build",
   });
+
 
   // Create SpecList.js
   const specFiles = await globby(workspaceSpecFiles["engine"]);
@@ -1124,6 +1136,7 @@ export async function buildCesium(options) {
     outbase: "packages/engine/Source",
   });
 
+ 
   // Bundle CSS files.
   await bundleCSS({
     filePaths: workspaceCssFiles[`engine`],
@@ -1165,8 +1178,8 @@ export async function buildCesium(options) {
     write: write,
   });
 
-  // Copy static assets to the Build folder.
 
+  // Copy static assets to the Build folder.
   await copyEngineAssets(outputDirectory);
   await copyWidgetsAssets(path.join(outputDirectory, "Widgets"));
 
@@ -1180,12 +1193,12 @@ export async function buildCesium(options) {
   );
 
   await copyWidgetsAssets("Source/Widgets");
+
   await copyFiles(
     ["packages/widgets/Source/**/*.css"],
     "Source/Widgets",
     "packages/widgets/Source"
   );
-
   // WORKAROUND:
   // Since CesiumWidget was originally part of the Widgets folder, we need to fix up any
   // references to it when we put it back in the Widgets folder, as expected by the
