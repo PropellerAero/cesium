@@ -1,4 +1,4 @@
-import { Ellipsoid, Globe } from "@cesium/engine";
+import { Ellipsoid, Globe } from "@propelleraero/cesiumengine";
 import { HomeButtonViewModel } from "../../index.js";
 
 import createScene from "../../../../Specs/createScene.js";

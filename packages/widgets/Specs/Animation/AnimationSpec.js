@@ -1,4 +1,4 @@
-import { defined } from "@cesium/engine";
+import { defined } from "@propelleraero/cesiumengine";
 
 import { Animation, AnimationViewModel, ClockViewModel } from "../../index.js";
 

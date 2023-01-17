@@ -9,6 +9,7 @@ Thumbs.db
 .eslintcache
 
 /Apps/CesiumViewer/Gallery/gallery-index.js
+/packages/*/node_modules/*
 
 /Apps/Sandcastle/jsHintOptions.js
 /Apps/Sandcastle/gallery/gallery-index.js

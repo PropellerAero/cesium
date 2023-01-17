@@ -4,7 +4,7 @@ import {
   defined,
   DeveloperError,
   WebGLConstants,
-} from "@cesium/engine";
+} from "@propelleraero/cesiumengine";
 
 function getWebGLStub(canvas, options) {
   const stub = clone(WebGLConstants);

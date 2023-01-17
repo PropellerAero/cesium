@@ -1,4 +1,4 @@
-import { Fullscreen } from "@cesium/engine";
+import { Fullscreen } from "@propelleraero/cesiumengine";
 
 import { FullscreenButtonViewModel } from "../../index.js";
 

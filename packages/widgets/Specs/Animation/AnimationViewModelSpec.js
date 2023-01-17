@@ -1,4 +1,4 @@
-import { ClockRange, ClockStep, JulianDate } from "@cesium/engine";
+import { ClockRange, ClockStep, JulianDate } from "@propelleraero/cesiumengine";
 
 import { AnimationViewModel, ClockViewModel } from "../../index.js";
 
