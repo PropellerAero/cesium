@@ -45,7 +45,7 @@ import {
 
 // Determines the scope of the workspace packages. If the scope is set to cesium, the workspaces should be @cesium/engine.
 // This should match the scope of the dependencies of the root level package.json.
-const scope = "propelleraero/cesium";
+const scope = "propelleraero";
 
 const require = createRequire(import.meta.url);
 console.error("require:", require);

@@ -53,7 +53,7 @@
     "./Specs/**/*"
   ],
   "dependencies": {
-    "@propelleraero/cesiumngine": "1.1.0",
+    "@propelleraero/cesiumengine": "1.1.0",
     "@propelleraero/cesiumwidgets": "1.1.0",
     "@zip.js/zip.js": "2.4.x",
     "autolinker": "^3.14.3",
