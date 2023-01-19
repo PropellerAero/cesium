@@ -1,4 +1,4 @@
-import { Ellipsoid, Globe, SceneMode } from "@propelleraero/cesiumengine";
+import { Ellipsoid, Globe, SceneMode } from "@propelleraero/cesium-engine";
 
 import { SceneModePickerViewModel } from "../../index.js";
 

@@ -8,7 +8,7 @@ import {
   FrameState,
   JobScheduler,
   PickFramebuffer,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 function executeCommands(context, passState, commands) {
   const length = commands.length;

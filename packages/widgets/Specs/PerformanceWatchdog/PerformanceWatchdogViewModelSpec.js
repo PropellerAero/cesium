@@ -1,4 +1,4 @@
-import { defined, getTimestamp, FrameRateMonitor } from "@propelleraero/cesiumengine";
+import { defined, getTimestamp, FrameRateMonitor } from "@propelleraero/cesium-engine";
 
 import { PerformanceWatchdogViewModel } from "../../index.js";
 

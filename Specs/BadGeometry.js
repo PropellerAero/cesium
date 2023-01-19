@@ -1,4 +1,4 @@
-import { queryToObject, RuntimeError } from "@propelleraero/cesiumengine";
+import { queryToObject, RuntimeError } from "@propelleraero/cesium-engine";
 
 function BadGeometry() {
   this._workerName = "../../Specs/TestWorkers/createBadGeometry";

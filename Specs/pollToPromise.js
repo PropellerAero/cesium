@@ -1,4 +1,4 @@
-import { defaultValue, getTimestamp } from "@propelleraero/cesiumengine";
+import { defaultValue, getTimestamp } from "@propelleraero/cesium-engine";
 
 function pollToPromise(f, options) {
   options = defaultValue(options, defaultValue.EMPTY_OBJECT);

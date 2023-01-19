@@ -6,7 +6,7 @@ import {
   CreditDisplay,
   FrameState,
   JobScheduler,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 function createFrameState(context, camera, frameNumber, time) {
   // Mock frame-state for testing.

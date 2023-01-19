@@ -1,4 +1,4 @@
-import { Clock } from "@propelleraero/cesiumengine";
+import { Clock } from "@propelleraero/cesium-engine";
 
 import { Timeline } from "../../index.js";
 

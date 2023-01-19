@@ -4,7 +4,7 @@ import {
   defaultValue,
   defined,
   Scene,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 import createCanvas from "./createCanvas.js";
 import getWebGLStub from "./getWebGLStub.js";

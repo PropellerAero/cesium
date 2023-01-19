@@ -2,7 +2,7 @@ import {
   OrthographicFrustum,
   PerspectiveFrustum,
   SceneMode,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 import { ProjectionPickerViewModel } from "../../index.js";
 

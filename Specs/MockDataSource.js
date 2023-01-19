@@ -1,4 +1,4 @@
-import { Event, EntityCluster, EntityCollection } from "@propelleraero/cesiumengine";
+import { Event, EntityCluster, EntityCollection } from "@propelleraero/cesium-engine";
 
 function MockDataSource() {
   //Values to be fiddled with by the test

@@ -1,4 +1,4 @@
-import { defaultValue, FeatureDetection } from "@propelleraero/cesiumengine";
+import { defaultValue, FeatureDetection } from "@propelleraero/cesium-engine";
 
 function createMouseEvent(type, options) {
   options = defaultValue(options, defaultValue.EMPTY_OBJECT);

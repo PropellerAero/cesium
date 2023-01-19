@@ -1,4 +1,4 @@
-import { defaultValue } from "@propelleraero/cesiumengine";
+import { defaultValue } from "@propelleraero/cesium-engine";
 
 function generateJsonBuffer(json, byteOffset, boundary) {
   let i;

@@ -9,7 +9,7 @@ import {
   GroundPrimitive,
   HeightReference,
   PrimitiveCollection,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 function createGeometryUpdaterGroundGeometrySpecs(
   Updater,

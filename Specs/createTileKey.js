@@ -1,4 +1,4 @@
-import { defined, DeveloperError } from "@propelleraero/cesiumengine";
+import { defined, DeveloperError } from "@propelleraero/cesium-engine";
 
 function createTileKey(xOrTile, y, level) {
   if (!defined(xOrTile)) {

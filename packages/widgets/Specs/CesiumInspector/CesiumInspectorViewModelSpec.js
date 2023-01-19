@@ -10,7 +10,7 @@ import {
   Primitive,
   QuadtreeTile,
   Math as CesiumMath,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 import { CesiumInspectorViewModel } from "../../index.js";
 

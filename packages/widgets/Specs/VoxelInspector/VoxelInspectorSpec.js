@@ -1,4 +1,4 @@
-import { Ellipsoid, Globe } from "@propelleraero/cesiumengine";
+import { Ellipsoid, Globe } from "@propelleraero/cesium-engine";
 import { VoxelInspector } from "../../index.js";
 
 import createScene from "../../../../Specs/createScene.js";

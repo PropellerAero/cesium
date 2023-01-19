@@ -1,4 +1,4 @@
-import { defined } from "@propelleraero/cesiumengine";
+import { defined } from "@propelleraero/cesium-engine";
 
 function equalsMethodEqualityTester(a, b) {
   let to_run;

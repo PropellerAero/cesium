@@ -29,7 +29,7 @@ import {
   ShadowMode,
   TimeDynamicPointCloud,
   VoxelPrimitive,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 import {
   Animation,

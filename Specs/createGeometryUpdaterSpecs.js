@@ -14,7 +14,7 @@ import {
   SampledProperty,
   TimeIntervalCollectionProperty,
   ShadowMode,
-} from "@propelleraero/cesiumengine";
+} from "@propelleraero/cesium-engine";
 
 function createGeometryUpdaterSpecs(
   Updater,

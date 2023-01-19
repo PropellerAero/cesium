@@ -184,7 +184,7 @@ export async function bundleCesiumJs(options) {
   const esmBundle = await esbuild.build({
     ...buildConfig,
     format: "esm",
-    external:["@propelleraero/cesiumwidgets", "@propelleraero/cesiumengine"],
+    external:["@propelleraero/cesiumwidgets", "@propelleraero/cesium-engine"],
     outfile: path.join(options.path, "index.js"),
   });
   handleBuildWarnings(esmBundle);
@@ -197,7 +197,7 @@ export async function bundleCesiumJs(options) {
       ...buildConfig,
       format: "iife",
       globalName: "Cesium",
-      external: ["@propelleraero/cesiumengine", "@propelleraero/cesiumwidgets"], 
+      external: ["@propelleraero/cesium-engine", "@propelleraero/cesiumwidgets"], 
       outfile: path.join(options.path, "Cesium.js"),
     });
     handleBuildWarnings(iifeBundle);
@@ -210,7 +210,7 @@ export async function bundleCesiumJs(options) {
       ...buildConfig,
       format: "cjs",
       platform: "node",
-      external:["@propelleraero/cesiumwidgets", "@propelleraero/cesiumengine"],
+      external:["@propelleraero/cesiumwidgets", "@propelleraero/cesium-engine"],
       define: {
         // TransformStream is a browser-only implementation depended on by zip.js
         TransformStream: "null",
@@ -275,7 +275,6 @@ export async function createCesiumJs() {
     const declarations = files.map((file) =>
       generateDeclaration(workspace, file)
     );
-    //console.error("declarations:", declarations)
     contents += declarations.join(`${EOL}`);
     contents += "\n";
   }
@@ -845,7 +844,7 @@ export function bundleCombinedSpecs(options) {
     target: "es2020",
     outdir: path.join("Build", "Specs"),
     plugins: [externalResolvePlugin],
-    external: [`http`, `https`, `url`, `zlib`, `@propelleraero/cesiumengine`, `@propelleraero/cesiumwidgets`],
+    external: [`http`, `https`, `url`, `zlib`, `@propelleraero/cesium-engine`, `@propelleraero/cesiumwidgets`],
     incremental: options.incremental,
     write: options.write,
   });

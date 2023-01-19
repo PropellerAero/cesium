@@ -1,4 +1,4 @@
-import { Cesium3DTileset, Cesium3DTileStyle, Globe } from "@propelleraero/cesiumengine";
+import { Cesium3DTileset, Cesium3DTileStyle, Globe } from "@propelleraero/cesium-engine";
 import { Cesium3DTilesInspectorViewModel } from "../../index.js";
 import createScene from "../../../../Specs/createScene.js";
 

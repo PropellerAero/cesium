@@ -1,4 +1,4 @@
-import { FeatureDetection } from "@propelleraero/cesiumengine";
+import { FeatureDetection } from "@propelleraero/cesium-engine";
 
 import { SceneModePicker } from "../../index.js";
 

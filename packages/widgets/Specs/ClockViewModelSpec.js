@@ -1,4 +1,4 @@
-import { Clock, ClockRange, ClockStep, JulianDate } from "@propelleraero/cesiumengine";
+import { Clock, ClockRange, ClockStep, JulianDate } from "@propelleraero/cesium-engine";
 import { ClockViewModel } from "../index.js";
 
 describe("Widgets/ClockViewModel", function () {

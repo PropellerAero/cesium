@@ -29,7 +29,7 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@propelleraer/engine": "1.1.0",
+    "@propelleraer/cesium-engine": "1.1.0",
     "nosleep.js": "^0.12.0"
   },
   "type": "module",

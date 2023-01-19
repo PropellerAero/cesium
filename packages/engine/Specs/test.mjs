@@ -1,4 +1,4 @@
-import { Cartographic, CesiumTerrainProvider, sampleTerrain } from "@propelleraero/cesiumengine";
+import { Cartographic, CesiumTerrainProvider, sampleTerrain } from "@propelleraero/cesium-engine";
 import assert from "node:assert";
 
 // NodeJS smoke screen test

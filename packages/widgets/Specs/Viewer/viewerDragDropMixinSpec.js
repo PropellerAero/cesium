@@ -1,4 +1,4 @@
-import { defined, TimeInterval } from "@propelleraero/cesiumengine";
+import { defined, TimeInterval } from "@propelleraero/cesium-engine";
 
 import { viewerDragDropMixin } from "../../index.js";
 

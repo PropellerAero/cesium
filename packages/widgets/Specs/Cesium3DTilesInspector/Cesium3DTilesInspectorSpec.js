@@ -1,4 +1,4 @@
-import { Ellipsoid, Globe } from "@propelleraero/cesiumengine";
+import { Ellipsoid, Globe } from "@propelleraero/cesium-engine";
 
 import { Cesium3DTilesInspector } from "../../index.js";
 
