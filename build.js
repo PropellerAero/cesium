@@ -169,7 +169,14 @@ export async function bundleCesiumJs(options) {
   buildConfig.entryPoints = ["Source/Cesium.js"];
   buildConfig.minify = options.minify;
   buildConfig.sourcemap = options.sourcemap;
-  buildConfig.external = ["https", "http", "url", "zlib"];
+  buildConfig.external = [
+    "https",
+    "http",
+    "url",
+    "zlib",
+    "@propelleraero/cesium-widgets",
+    "@propelleraero/cesium-engine",
+  ];
   buildConfig.plugins = options.removePragmas ? [stripPragmaPlugin] : undefined;
   buildConfig.incremental = options.incremental;
   buildConfig.write = options.write;
@@ -178,39 +185,34 @@ export async function bundleCesiumJs(options) {
   };
   // print errors immediately, and collect warnings so we can filter out known ones
   buildConfig.logLevel = "info";
-
   const bundles = {};
   // Build ESM
   const esmBundle = await esbuild.build({
     ...buildConfig,
     format: "esm",
-    //external:["@propelleraero/cesium-widgets", "@propelleraero/cesium-engine"],
     outfile: path.join(options.path, "index.js"),
   });
 
   handleBuildWarnings(esmBundle);
   bundles.esmBundle = esmBundle;
   // Build IIFE
- 
+
   if (options.iife) {
     const iifeBundle = await esbuild.build({
       ...buildConfig,
       format: "iife",
       globalName: "Cesium",
-      external: ["@propelleraero/cesium-engine", "@propelleraero/cesium-widgets"], 
       outfile: path.join(options.path, "Cesium.js"),
     });
     handleBuildWarnings(iifeBundle);
 
     bundles.iifeBundle = iifeBundle;
   }
-  
   if (options.node) {
     const nodeBundle = await esbuild.build({
       ...buildConfig,
       format: "cjs",
       platform: "node",
-      external:["@propelleraero/cesium-widgets", "@propelleraero/cesium-engine"],
       define: {
         // TransformStream is a browser-only implementation depended on by zip.js
         TransformStream: "null",
@@ -220,7 +222,6 @@ export async function bundleCesiumJs(options) {
     handleBuildWarnings(nodeBundle);
     bundles.nodeBundle = nodeBundle;
   }
-
   return bundles;
 }
 
@@ -356,6 +357,7 @@ export async function bundleCombinedWorkers(options) {
   workerConfig.outdir = options.path;
   workerConfig.minify = options.minify;
   workerConfig.outbase = "packages/engine/Source";
+
   await esbuild.build(workerConfig);
 
   // Copy ThirdParty workers
@@ -370,7 +372,6 @@ export async function bundleCombinedWorkers(options) {
   thirdPartyWorkerConfig.minify = options.minify;
   thirdPartyWorkerConfig.outbase = "packages/engine/Source";
   await esbuild.build(thirdPartyWorkerConfig);
-
   // Bundle ES6 workers.
 
   const es6Workers = await globby([`packages/engine/Source/WorkersES6/*.js`]);
@@ -429,7 +430,6 @@ export async function bundleWorkers(options) {
   workerConfig.outbase = `packages/engine/Source`; // Maintain existing file paths
   workerConfig.minify = options.minify;
   await esbuild.build(workerConfig);
-
   // Use rollup to build the workers:
   // 1) They can be built as AMD style modules
   // 2) They can be built using code-splitting, resulting in smaller modules
@@ -722,7 +722,6 @@ const gallery_demos = [${demoJSONs.join(", ")}];\n\
 const has_new_gallery_demos = ${newDemos.length > 0 ? "true;" : "false;"}\n`;
 
   await writeFile(output, contents);
-
   // Compile CSS for Sandcastle
   return esbuild.build({
     entryPoints: [
@@ -831,7 +830,6 @@ export async function createJsHintOptions() {
  */
 export function bundleCombinedSpecs(options) {
   options = options || {};
-
   return esbuild.build({
     entryPoints: [
       "Specs/spec-main.js",
@@ -844,7 +842,14 @@ export function bundleCombinedSpecs(options) {
     target: "es2020",
     outdir: path.join("Build", "Specs"),
     plugins: [externalResolvePlugin],
-    external: [`http`, `https`, `url`, `zlib`, `@propelleraero/cesium-engine`, `@propelleraero/cesium-widgets`],
+    external: [
+      `http`,
+      `https`,
+      `url`,
+      `zlib`,
+      `@propelleraero/cesium-engine`,
+      `@propelleraero/cesium-widgets`,
+    ],
     incremental: options.incremental,
     write: options.write,
   });
@@ -934,7 +939,6 @@ async function bundleCSS(options) {
   esBuildOptions.minify = options.minify;
   esBuildOptions.outdir = options.outdir;
   esBuildOptions.outbase = options.outbase;
-
   await esbuild.build(esBuildOptions);
 }
 
@@ -964,18 +968,23 @@ async function bundleSpecs(options) {
     incremental: incremental,
     outdir: options.outdir,
     sourcemap: true,
-    external: ["https", "http", "zlib", "url"],
+    external: [
+      "https",
+      "http",
+      "zlib",
+      "url",
+      "@propelleraero/cesium-widgets",
+      "@propelleraero/cesium-engine",
+    ],
     target: "es2020",
     write: write,
   };
-
   // When bundling specs for a workspace, the spec-main.js and karma-main.js
   // are bundled separately since they use a different outbase than the workspace's SpecList.js.
   await esbuild.build({
-      ...buildOptions,
-      entryPoints: ["Specs/spec-main.js", "Specs/karma-main.js"],
-    });
-
+    ...buildOptions,
+    entryPoints: ["Specs/spec-main.js", "Specs/karma-main.js"],
+  });
   return await esbuild.build({
     ...buildOptions,
     entryPoints: [options.specListFile],
@@ -1017,7 +1026,6 @@ export const buildEngine = async (options) => {
     inputES6: ["packages/engine/Source/WorkersES6/*.js"],
     path: "packages/engine/Build",
   });
-
 
   // Create SpecList.js
   const specFiles = await globby(workspaceSpecFiles["engine"]);
@@ -1114,8 +1122,6 @@ export async function buildCesium(options) {
   // Create SpecList.js
   await createCombinedSpecList();
 
-
- 
   // Bundle ThirdParty files.
   await bundleCSS({
     filePaths: [
@@ -1126,7 +1132,6 @@ export async function buildCesium(options) {
     outdir: outputDirectory,
     outbase: "packages/engine/Source",
   });
-
 
   // Bundle CSS files.
   await bundleCSS({
@@ -1168,7 +1173,6 @@ export async function buildCesium(options) {
     incremental: incremental,
     write: write,
   });
-
 
   // Copy static assets to the Build folder.
   await copyEngineAssets(outputDirectory);
