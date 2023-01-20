@@ -54,8 +54,8 @@
   "type": "module",
   "scripts": {
     "build": "gulp build --workspace @propelleraero/cesium-engine",
-    "build-ts": "gulp buildTs --workspace @propelleraero/engine",
-    "coverage": "gulp coverage --workspace @propelleraero/engine",
+    "build-ts": "gulp buildTs --workspace @propelleraero/cesium-engine",
+    "coverage": "gulp coverage --workspace @propelleraero/cesium-engine",
     "test": "gulp test --workspace @propelleraero/cesium-engine",
     "postversion": "gulp postversion --workspace @propelleraero/cesium-engine"
   },
