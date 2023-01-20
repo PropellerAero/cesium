@@ -53,8 +53,8 @@
     "./Specs/**/*"
   ],
   "dependencies": {
-    "@propelleraero/cesium-engine": "link:/packages/engine",
-    "@propelleraero/cesiumwidgets": "link:/packages/widgets",
+    "@propelleraero/cesium-engine": "/packages/engine",
+    "@propelleraero/cesium-widgets": "/packages/widgets",
     "@zip.js/zip.js": "2.4.x",
     "autolinker": "^3.14.3",
     "bitmap-sdf": "^1.0.3",

@@ -1,5 +1,5 @@
 import { defaultValue } from "@propelleraero/cesium-engine";
-import { Viewer } from "@propelleraero/cesiumwidgets";
+import { Viewer } from "@propelleraero/cesium-widgets";
 
 import getWebGLStub from "./getWebGLStub.js";
 

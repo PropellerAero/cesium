@@ -1,7 +1,6 @@
 {
-  "name": "@propelleraero/cesiumwidgets",
+  "name": "@propelleraero/cesium-widgets",
   "version": "1.1.0",
-  "private": true,
   "description": "A widgets library for use with CesiumJS. CesiumJS is a JavaScript library for creating 3D globes and 2D maps in a web browser without a plugin.",
   "keywords": [
     "3D",
@@ -34,11 +33,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "gulp build --workspace @propelleraero/cesiumwidgets",
-    "build-ts": "gulp buildTs --workspace @propelleraero/cesiumwidgets",
-    "coverage": "gulp coverage --workspace @propelleraero/cesiumwidgets",
-    "test": "gulp test --workspace @propelleraero/cesiumwidgets",
-    "postversion": "gulp postversion --workspace @propelleraero/cesiumwidgets"
+    "build": "gulp build --workspace @propelleraero/cesium-widgets",
+    "build-ts": "gulp buildTs --workspace @propelleraero/cesium-widgets",
+    "coverage": "gulp coverage --workspace @propelleraero/cesium-widgets",
+    "test": "gulp test --workspace @propelleraero/cesium-widgets",
+    "postversion": "gulp postversion --workspace @propelleraero/cesium-widgets"
   },
   "repository": {
     "type": "git",
@@ -46,11 +45,9 @@
   },
   "homepage": "https://cesium.com/cesiumjs/",
   "license": "Apache-2.0",
-  "author": {
-    "name": "Cesium GS, Inc.",
-    "url": "https://cesium.com"
-  },
+  "author": "Cesium GS, Inc. (https://cesium.com)",
   "bugs": {
     "url": "https://github.com/CesiumGS/cesium/issues"
-  }
+  },
+  "devDependencies": {}
 }

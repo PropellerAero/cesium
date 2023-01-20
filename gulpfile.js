@@ -146,15 +146,15 @@ export async function build() {
   // Configure build target.
   const workspace = argv.workspace ? argv.workspace : undefined;
 
-
   if (workspace === `@${scope}/cesium-engine`) {
     return buildEngine(buildOptions);
-  } else if (workspace === `@${scope}/cesiumwidgets`) {
+  } else if (workspace === `@${scope}/cesium-widgets`) {
     return buildWidgets(buildOptions);
   }
 
   await buildEngine(buildOptions);
   await buildWidgets(buildOptions);
+  console.error("___build", buildOptions);
   await buildCesium(buildOptions);
 }
 export default build;
@@ -1516,7 +1516,7 @@ export async function test() {
   if (workspace) {
     workspace = workspace.replaceAll(`@${scope}/`, ``);
   }
- 
+
   let browsers = ["Chrome"];
   if (argv.browsers) {
     browsers = argv.browsers.split(",");
@@ -1703,7 +1703,7 @@ function generateTypeScriptDefinitions(
 
   // Wrap the source to actually be inside of a declared cesium module
   // and add any workaround and private utility types.
-  source = `declare module "@${scope}/${workspaceName}" {
+  source = `declare module "@${scope}/cesium-${workspaceName}" {
 ${source}
 }
 `;
