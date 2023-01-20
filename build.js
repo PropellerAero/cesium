@@ -981,7 +981,7 @@ async function bundleSpecs(options) {
     entryPoints: [options.specListFile],
     outbase: options.outbase,
   });
-
+}
 
 /**
  * Builds the engine workspace.
