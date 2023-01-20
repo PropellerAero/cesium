@@ -154,7 +154,6 @@ export async function build() {
 
   await buildEngine(buildOptions);
   await buildWidgets(buildOptions);
-  console.error("___build", buildOptions);
   await buildCesium(buildOptions);
 }
 export default build;
@@ -1516,7 +1515,7 @@ export async function test() {
   if (workspace) {
     workspace = workspace.replaceAll(`@${scope}/`, ``);
   }
-
+ 
   let browsers = ["Chrome"];
   if (argv.browsers) {
     browsers = argv.browsers.split(",");

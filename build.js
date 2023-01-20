@@ -184,12 +184,12 @@ export async function bundleCesiumJs(options) {
   const esmBundle = await esbuild.build({
     ...buildConfig,
     format: "esm",
-    external:["@propelleraero/cesiumwidgets", "@propelleraero/cesium-engine"],
+    //external:["@propelleraero/cesium-widgets", "@propelleraero/cesium-engine"],
     outfile: path.join(options.path, "index.js"),
   });
+
   handleBuildWarnings(esmBundle);
   bundles.esmBundle = esmBundle;
-
   // Build IIFE
  
   if (options.iife) {
@@ -197,7 +197,7 @@ export async function bundleCesiumJs(options) {
       ...buildConfig,
       format: "iife",
       globalName: "Cesium",
-      external: ["@propelleraero/cesium-engine", "@propelleraero/cesiumwidgets"], 
+      external: ["@propelleraero/cesium-engine", "@propelleraero/cesium-widgets"], 
       outfile: path.join(options.path, "Cesium.js"),
     });
     handleBuildWarnings(iifeBundle);
@@ -210,7 +210,7 @@ export async function bundleCesiumJs(options) {
       ...buildConfig,
       format: "cjs",
       platform: "node",
-      external:["@propelleraero/cesiumwidgets", "@propelleraero/cesium-engine"],
+      external:["@propelleraero/cesium-widgets", "@propelleraero/cesium-engine"],
       define: {
         // TransformStream is a browser-only implementation depended on by zip.js
         TransformStream: "null",
@@ -259,7 +259,7 @@ function generateDeclaration(workspace, file) {
     assignmentName = `_shaders${assignmentName}`;
   }
   assignmentName = assignmentName.replace(/(\.|-)/g, "_");
-  return `export { ${assignmentName} } from '@${scope}/${"cesium" + workspace}';`;
+  return `export { ${assignmentName} } from '@${scope}/cesium-${workspace}';`;
 }
 
 /**
@@ -844,7 +844,7 @@ export function bundleCombinedSpecs(options) {
     target: "es2020",
     outdir: path.join("Build", "Specs"),
     plugins: [externalResolvePlugin],
-    external: [`http`, `https`, `url`, `zlib`, `@propelleraero/cesium-engine`, `@propelleraero/cesiumwidgets`],
+    external: [`http`, `https`, `url`, `zlib`, `@propelleraero/cesium-engine`, `@propelleraero/cesium-widgets`],
     incremental: options.incremental,
     write: options.write,
   });
@@ -969,29 +969,19 @@ async function bundleSpecs(options) {
     write: write,
   };
 
-//TODO
   // When bundling specs for a workspace, the spec-main.js and karma-main.js
   // are bundled separately since they use a different outbase than the workspace's SpecList.js.
-  /*
-  try {
-    await esbuild.build({
+  await esbuild.build({
       ...buildOptions,
       entryPoints: ["Specs/spec-main.js", "Specs/karma-main.js"],
     });
-
-  console.error("10")
 
   return await esbuild.build({
     ...buildOptions,
     entryPoints: [options.specListFile],
     outbase: options.outbase,
   });
-    }
-  catch{
 
-  }
-  */
-}
 
 /**
  * Builds the engine workspace.
@@ -1124,6 +1114,8 @@ export async function buildCesium(options) {
   // Create SpecList.js
   await createCombinedSpecList();
 
+
+ 
   // Bundle ThirdParty files.
   await bundleCSS({
     filePaths: [
@@ -1135,7 +1127,7 @@ export async function buildCesium(options) {
     outbase: "packages/engine/Source",
   });
 
- 
+
   // Bundle CSS files.
   await bundleCSS({
     filePaths: workspaceCssFiles[`engine`],
