@@ -46,6 +46,13 @@ ApproximateTerrainHeights.initialize = function () {
   initPromise = Resource.fetchJson(
     buildModuleUrl("Assets/approximateTerrainHeights.json")
   ).then(function (json) {
+    const MAX_EXCAVATION_DEPTH = -250;
+
+    // Subtract the max excavation depth from the heights
+    Object.keys(json).map(function (key) {
+      json[key][0] += MAX_EXCAVATION_DEPTH;
+    });
+
     ApproximateTerrainHeights._terrainHeights = json;
   });
   ApproximateTerrainHeights._initPromise = initPromise;
