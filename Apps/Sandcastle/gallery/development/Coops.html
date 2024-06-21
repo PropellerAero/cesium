@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Draw polylines with different color appearances."
+    />
+    <meta name="cesium-sandcastle-labels" content="Development" />
+    <title>Cesium Demo</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+    <script
+      type="text/javascript"
+      src="../../../Build/CesiumUnminified/Cesium.js"
+      nomodule
+    ></script>
+    <script type="module" src="../load-cesium-es6.js"></script>
+  </head>
+  <body
+    class="sandcastle-loading"
+    data-sandcastle-bucket="bucket-requirejs.html"
+  >
+    <style>
+      @import url(../templates/bucket.css);
+    </style>
+    <div id="cesiumContainer" class="fullSize"></div>
+    <div id="loadingOverlay"><h1>Loading...</h1></div>
+    <div id="toolbar"></div>
+    <script id="cesium_sandcastle_script">
+      window.startup = async function (Cesium) {
+        "use strict";
+        //Sandcastle_Begin
+        // Create the viewer.
+        const viewer = new Cesium.Viewer("cesiumContainer");
+        const scene = viewer.scene;
+
+        const MATERIAL_NAME = "MachineTrail";
+
+        const fragmentShader = `
+czm_material czm_getMaterial(czm_materialInput materialInput)
+{
+    czm_material material = czm_getDefaultMaterial(materialInput);
+    material.emission = color.rgb;
+  
+    return material;
+}`;
+
+        // Call this once at application startup, makes the material available when defined as a MaterialProperty
+        // @ts-expect-error _materialCache is not defined in the types
+        Cesium.Material._materialCache.addMaterial(MATERIAL_NAME, {
+          fabric: {
+            type: MATERIAL_NAME,
+            uniforms: {
+              color: new Cesium.Color(1.0, 0.0, 1.0, 1.0),
+            },
+            source: fragmentShader,
+          },
+          translucent: true,
+        });
+
+        // Example 2: Draw a polyline with per vertex colors
+        const positions = [];
+        const colors = [];
+        const steps = 12;
+        for (let i = 0; i < steps; ++i) {
+          positions.push(Cesium.Cartesian3.fromDegrees(-124.0 + 5 * i, 35.0));
+          const encodedTime = (i / steps) * 10;
+          colors.push(new Cesium.Color(encodedTime, 0, 0, 1));
+        }
+
+        const appearance = new Cesium.PolylineMaterialAppearance({
+          material: Cesium.Material.fromType(MATERIAL_NAME),
+        });
+
+        // For per segment coloring, supply the colors option with
+        // an array of colors for each vertex.  Also set the
+        // colorsPerVertex option to true.
+        const prim = scene.primitives.add(
+          new Cesium.Primitive({
+            geometryInstances: new Cesium.GeometryInstance({
+              geometry: new Cesium.PolylineGeometry({
+                positions: positions,
+                width: 5.0,
+                vertexFormat: Cesium.PolylineMaterialAppearance.VERTEX_FORMAT,
+                colors: colors,
+                colorsPerVertex: true,
+                useFloatColor: true,
+              }),
+            }),
+            // appearance: appearance,
+
+            appearance: new Cesium.PolylineColorAppearance({
+              translucent: false,
+              fragmentShaderSource: `
+in vec4 v_color;
+void main()
+{
+    out_FragColor = v_color * 0.5;
+}`,
+            }),
+          })
+        );
+
+        console.info({ prim });
+
+        //Sandcastle_End
+      };
+      if (typeof Cesium !== "undefined") {
+        window.startupCalled = true;
+        window.startup(Cesium).catch((error) => {
+          "use strict";
+          console.error(error);
+        });
+        Sandcastle.finishedLoading();
+      }
+    </script>
+  </body>
+</html>

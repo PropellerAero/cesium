@@ -103,6 +103,7 @@ function PolylineGeometry(options) {
   const colors = options.colors;
   const width = defaultValue(options.width, 1.0);
   const colorsPerVertex = defaultValue(options.colorsPerVertex, false);
+  const useFloatColor = defaultValue(options.useFloatColor, false);
 
   //>>includeStart('debug', pragmas.debug);
   if (!defined(positions) || positions.length < 2) {
@@ -124,6 +125,7 @@ function PolylineGeometry(options) {
   this._colors = colors;
   this._width = width;
   this._colorsPerVertex = colorsPerVertex;
+  this._useFloatColor = useFloatColor;
   this._vertexFormat = VertexFormat.clone(
     defaultValue(options.vertexFormat, VertexFormat.DEFAULT)
   );
@@ -196,6 +198,7 @@ PolylineGeometry.pack = function (value, array, startingIndex) {
 
   array[startingIndex++] = value._width;
   array[startingIndex++] = value._colorsPerVertex ? 1.0 : 0.0;
+  array[startingIndex++] = value._useFloatColor ? 1.0 : 0.0;
   array[startingIndex++] = value._arcType;
   array[startingIndex] = value._granularity;
 
@@ -211,6 +214,7 @@ const scratchOptions = {
   vertexFormat: scratchVertexFormat,
   width: undefined,
   colorsPerVertex: undefined,
+  useFloatColor: undefined,
   arcType: undefined,
   granularity: undefined,
 };
@@ -260,6 +264,7 @@ PolylineGeometry.unpack = function (array, startingIndex, result) {
 
   const width = array[startingIndex++];
   const colorsPerVertex = array[startingIndex++] === 1.0;
+  const useFloatColor = array[startingIndex++] === 1.0;
   const arcType = array[startingIndex++];
   const granularity = array[startingIndex];
 
@@ -268,6 +273,7 @@ PolylineGeometry.unpack = function (array, startingIndex, result) {
     scratchOptions.colors = colors;
     scratchOptions.width = width;
     scratchOptions.colorsPerVertex = colorsPerVertex;
+    scratchOptions.useFloatColor = useFloatColor;
     scratchOptions.arcType = arcType;
     scratchOptions.granularity = granularity;
     return new PolylineGeometry(scratchOptions);
@@ -279,6 +285,7 @@ PolylineGeometry.unpack = function (array, startingIndex, result) {
   result._vertexFormat = VertexFormat.clone(vertexFormat, result._vertexFormat);
   result._width = width;
   result._colorsPerVertex = colorsPerVertex;
+  result._useFloatColor = useFloatColor;
   result._arcType = arcType;
   result._granularity = granularity;
 
@@ -301,9 +308,12 @@ PolylineGeometry.createGeometry = function (polylineGeometry) {
   const vertexFormat = polylineGeometry._vertexFormat;
   let colors = polylineGeometry._colors;
   const colorsPerVertex = polylineGeometry._colorsPerVertex;
+  const useFloatColor = polylineGeometry._useFloatColor;
   const arcType = polylineGeometry._arcType;
   const granularity = polylineGeometry._granularity;
   const ellipsoid = polylineGeometry._ellipsoid;
+
+  console.info({ useFloatColor });
 
   let i;
   let j;
@@ -432,7 +442,11 @@ PolylineGeometry.createGeometry = function (polylineGeometry) {
   const nextPositions = new Float64Array(size * 3);
   const expandAndWidth = new Float32Array(size * 2);
   const st = vertexFormat.st ? new Float32Array(size * 2) : undefined;
-  const finalColors = defined(colors) ? new Uint8Array(size * 4) : undefined;
+  const finalColors = defined(colors)
+    ? useFloatColor
+      ? new Float32Array(size * 4)
+      : new Uint8Array(size * 4)
+    : undefined;
 
   let positionIndex = 0;
   let expandAndWidthIndex = 0;
@@ -500,10 +514,17 @@ PolylineGeometry.createGeometry = function (polylineGeometry) {
       if (defined(finalColors)) {
         const color = k < 2 ? color0 : color1;
 
-        finalColors[colorIndex++] = Color.floatToByte(color.red);
-        finalColors[colorIndex++] = Color.floatToByte(color.green);
-        finalColors[colorIndex++] = Color.floatToByte(color.blue);
-        finalColors[colorIndex++] = Color.floatToByte(color.alpha);
+        if (useFloatColor) {
+          finalColors[colorIndex++] = color.red;
+          finalColors[colorIndex++] = color.green;
+          finalColors[colorIndex++] = color.blue;
+          finalColors[colorIndex++] = color.alpha;
+        } else {
+          finalColors[colorIndex++] = Color.floatToByte(color.red);
+          finalColors[colorIndex++] = Color.floatToByte(color.green);
+          finalColors[colorIndex++] = Color.floatToByte(color.blue);
+          finalColors[colorIndex++] = Color.floatToByte(color.alpha);
+        }
       }
     }
   }
@@ -543,12 +564,21 @@ PolylineGeometry.createGeometry = function (polylineGeometry) {
   }
 
   if (defined(finalColors)) {
-    attributes.color = new GeometryAttribute({
-      componentDatatype: ComponentDatatype.UNSIGNED_BYTE,
-      componentsPerAttribute: 4,
-      values: finalColors,
-      normalize: true,
-    });
+    if (useFloatColor) {
+      attributes.color = new GeometryAttribute({
+        componentDatatype: ComponentDatatype.FLOAT,
+        componentsPerAttribute: 4,
+        values: finalColors,
+        normalize: true,
+      });
+    } else {
+      attributes.color = new GeometryAttribute({
+        componentDatatype: ComponentDatatype.UNSIGNED_BYTE,
+        componentsPerAttribute: 4,
+        values: finalColors,
+        normalize: true,
+      });
+    }
   }
 
   const indices = IndexDatatype.createTypedArray(size, positionsLength * 6 - 6);
